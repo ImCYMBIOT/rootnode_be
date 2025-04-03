@@ -10,8 +10,9 @@ router.post("/register", async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ email });
-    if (existingUser)
+    if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ email, password: hashedPassword });
@@ -21,11 +22,11 @@ router.post("/register", async (req, res) => {
       .status(201)
       .json({ uuid: user.uuid, message: "User registered successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Error during registration:", err); // ✅ Log the actual error
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// 📌 Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -39,7 +40,8 @@ router.post("/login", async (req, res) => {
 
     res.json({ uuid: user.uuid, message: "Login successful" });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Error during login:", err); // ✅ Log the actual error
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
