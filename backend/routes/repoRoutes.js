@@ -2,28 +2,55 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const simpleGit = require("simple-git");
+const Repo = require("../models/repoModel");
 
 module.exports = (repositoriesDir, wss) => {
   const router = express.Router();
 
-  // Create a new repository
+  // 📌 Create a new repository (with user UUID)
   router.post("/create", async (req, res) => {
-    const { repoName } = req.body;
+    const { repoName, uuid } = req.body; // Ensure user UUID is provided
+    if (!uuid)
+      return res.status(400).json({ message: "User UUID is required" });
+
     const repoPath = path.join(repositoriesDir, repoName);
 
     if (fs.existsSync(repoPath)) {
       return res.status(400).json({ message: "Repository already exists" });
     }
 
-    fs.mkdirSync(repoPath);
-    const git = simpleGit(repoPath);
-    await git.init();
-    res.json({ message: "Repository created", repoName });
+    try {
+      fs.mkdirSync(repoPath);
+      const git = simpleGit(repoPath);
+      await git.init();
 
-    watchRepository(repositoriesDir, repoName, wss); // ✅ Pass wss
+      // Store repo in MongoDB
+      const newRepo = new Repo({ name: repoName, uuid });
+      await newRepo.save();
+
+      watchRepository(repositoriesDir, repoName, wss);
+      res.json({ message: "Repository created", repoName, uuid });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "Failed to create repository", error: err.message });
+    }
   });
 
-  // Commit changes
+  // 📌 Get all repositories for a user
+  router.get("/user/:uuid/repos", async (req, res) => {
+    try {
+      const { uuid } = req.params;
+      const repos = await Repo.find({ uuid });
+      res.json(repos);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ message: "Failed to fetch repositories", error: err.message });
+    }
+  });
+
+  // 📌 Commit changes
   router.post("/commit", async (req, res) => {
     const { repoName, commitMessage } = req.body;
     const repoPath = path.join(repositoriesDir, repoName);
@@ -50,7 +77,7 @@ module.exports = (repositoriesDir, wss) => {
   return router;
 };
 
-// ✅ Fix: Accept `wss` as an additional parameter
+// ✅ Watch repository for changes
 function watchRepository(repositoriesDir, repoName, wss) {
   const repoPath = path.join(repositoriesDir, repoName);
 
@@ -65,7 +92,7 @@ function watchRepository(repositoriesDir, repoName, wss) {
       fs.readFile(filePath, "utf8", (err, content) => {
         if (!err) {
           console.log(`File changed: ${filename}`);
-          broadcast(wss, { repoName, changes: { file: filename, content } }); // ✅ Now `wss` is available
+          broadcast(wss, { repoName, changes: { file: filename, content } });
         }
       });
     }
@@ -74,7 +101,7 @@ function watchRepository(repositoriesDir, repoName, wss) {
   console.log(`Watching repository: ${repoName}`);
 }
 
-// Broadcast to all WebSocket clients
+// ✅ Broadcast to WebSocket clients
 function broadcast(wss, data) {
   if (!wss) {
     console.error("WebSocket server is not initialized!");

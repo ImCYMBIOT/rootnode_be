@@ -1,5 +1,12 @@
+|-- .gitignore
 |-- backend
+    |-- .env
+    |-- auth
+        |-- auth.js
     |-- index.js
+    |-- models
+        |-- repoModel.js
+        |-- userModel.js
     |-- package-lock.json
     |-- package.json
     |-- repositories
