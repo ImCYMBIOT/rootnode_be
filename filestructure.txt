@@ -6,12 +6,14 @@
     |-- index.js
     |-- models
         |-- repoModel.js
+        |-- stream.js
         |-- userModel.js
     |-- package-lock.json
     |-- package.json
     |-- repositories
     |-- routes
         |-- repoRoutes.js
+        |-- streamRoutes.js
         |-- wsRoutes.js
     |-- services
         |-- conflictService.js

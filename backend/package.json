@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "chokidar": "^4.0.3",
     "cors": "^2.8.5",
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",

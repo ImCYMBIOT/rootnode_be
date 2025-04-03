@@ -14,18 +14,18 @@ const app = express();
 const server = http.createServer(app);
 const repositoriesDir = path.join(__dirname, "repositories");
 
-// 📈 Connect to MongoDB using .env variable
+// Connect to MongoDB using .env variable
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// 📈 Ensure repositories directory exists
+// Ensure repositories directory exists
 if (!fs.existsSync(repositoriesDir)) {
   fs.mkdirSync(repositoriesDir);
 }
 
-// 📈 Set security headers
+// Set security headers
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -34,22 +34,25 @@ app.use((req, res, next) => {
   next();
 });
 
-//  Middleware
+// Middleware
 app.use(cors()); // Allow CORS
 app.use(express.json());
 
-//  Initialize WebSocket and get `wss`
+// Initialize WebSocket and get `wss`
 const wss = setupWebSocket(server, repositoriesDir);
 
-//  Routes
+// Routes
 app.use("/repo", repoRoutes(repositoriesDir, wss)); // Repository routes
 app.use("/auth", authRoutes); // Authentication routes
 
-// 📈 Start server
+const streamRoutes = require("./routes/streamRoutes");
+app.use("/stream", streamRoutes);
+
+// Start server
 server
   .listen(3000, () => {
-    console.log(" Server running on http://localhost:3000");
+    console.log("Server running on http://localhost:3000");
   })
   .on("error", (err) => {
-    console.error(" Failed to start server:", err);
+    console.error("Failed to start server:", err);
   });

@@ -2,34 +2,34 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const simpleGit = require("simple-git");
+const chokidar = require("chokidar");
 const Repo = require("../models/repoModel");
 
 module.exports = (repositoriesDir, wss) => {
   const router = express.Router();
 
-  // 📌 Create a new repository (with user UUID)
+  // 📌 Create a new repository
   router.post("/create", async (req, res) => {
-    const { repoName, uuid } = req.body; // Ensure user UUID is provided
+    const { repoName, uuid } = req.body;
     if (!uuid)
       return res.status(400).json({ message: "User UUID is required" });
 
-    const repoPath = path.join(repositoriesDir, repoName);
+    const repoPath = path.join(repositoriesDir, uuid, repoName);
 
     if (fs.existsSync(repoPath)) {
       return res.status(400).json({ message: "Repository already exists" });
     }
 
     try {
-      fs.mkdirSync(repoPath);
+      fs.mkdirSync(repoPath, { recursive: true });
       const git = simpleGit(repoPath);
       await git.init();
 
-      // Store repo in MongoDB
       const newRepo = new Repo({ name: repoName, uuid });
       await newRepo.save();
 
-      watchRepository(repositoriesDir, repoName, wss);
-      res.json({ message: "Repository created", repoName, uuid });
+      watchRepository(repoPath, repoName, uuid, wss);
+      res.status(201).json({ message: "Repository created", repoName, uuid });
     } catch (err) {
       res
         .status(500)
@@ -39,8 +39,11 @@ module.exports = (repositoriesDir, wss) => {
 
   // 📌 Get all repositories for a user
   router.get("/user/:uuid/repos", async (req, res) => {
+    const { uuid } = req.params;
+    if (!uuid)
+      return res.status(400).json({ message: "User UUID is required" });
+
     try {
-      const { uuid } = req.params;
       const repos = await Repo.find({ uuid });
       res.json(repos);
     } catch (err) {
@@ -52,9 +55,14 @@ module.exports = (repositoriesDir, wss) => {
 
   // 📌 Commit changes
   router.post("/commit", async (req, res) => {
-    const { repoName, commitMessage } = req.body;
-    const repoPath = path.join(repositoriesDir, repoName);
+    const { repoName, uuid, commitMessage } = req.body;
+    if (!uuid || !repoName || !commitMessage) {
+      return res
+        .status(400)
+        .json({ message: "UUID, repoName, and commitMessage are required" });
+    }
 
+    const repoPath = path.join(repositoriesDir, uuid, repoName);
     if (!fs.existsSync(repoPath)) {
       return res.status(404).json({ message: "Repository not found" });
     }
@@ -65,7 +73,6 @@ module.exports = (repositoriesDir, wss) => {
       await git.add("./*");
       await git.commit(commitMessage);
 
-      // Notify WebSocket clients
       broadcast(wss, { repoName, message: `Commit: ${commitMessage}` });
 
       res.json({ message: "Changes committed", repoName, commitMessage });
@@ -78,24 +85,29 @@ module.exports = (repositoriesDir, wss) => {
 };
 
 // ✅ Watch repository for changes
-function watchRepository(repositoriesDir, repoName, wss) {
-  const repoPath = path.join(repositoriesDir, repoName);
-
+function watchRepository(repoPath, repoName, uuid, wss) {
   if (!fs.existsSync(repoPath)) {
     console.error(`Cannot watch: Repository ${repoName} does not exist.`);
     return;
   }
 
-  fs.watch(repoPath, { recursive: true }, (eventType, filename) => {
-    if (filename) {
-      const filePath = path.join(repoPath, filename);
-      fs.readFile(filePath, "utf8", (err, content) => {
-        if (!err) {
-          console.log(`File changed: ${filename}`);
-          broadcast(wss, { repoName, changes: { file: filename, content } });
-        }
-      });
-    }
+  const watcher = chokidar.watch(repoPath, {
+    persistent: true,
+    ignoreInitial: true,
+  });
+
+  watcher.on("all", (event, filePath) => {
+    console.log(`🔄 Change detected: ${event} on ${filePath}`);
+
+    const git = simpleGit(repoPath);
+    git
+      .add("./*")
+      .then(() => git.commit(`Auto commit by ${uuid} at $(date)`))
+      .then(() => {
+        console.log(`✅ Auto commit successful for ${repoName}`);
+        broadcast(wss, { repoName, event: "repo_updated", filePath });
+      })
+      .catch((err) => console.error("❌ Auto commit failed:", err));
   });
 
   console.log(`Watching repository: ${repoName}`);
