@@ -1,4 +1,5 @@
 |-- .gitignore
+|-- apiContract.md
 |-- backend
     |-- .env
     |-- auth
