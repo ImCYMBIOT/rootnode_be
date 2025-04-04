@@ -2,8 +2,8 @@ import articles from "../../../assets/articles.png";
 
 const Articles = () => {
 	return (
-		<div className="flex items-center justify-between bg-background px-72 py-16">
-			<div className="max-w-xl">
+		<div className="flex items-center justify-between bg-background px-36 py-16">
+			<div className="max-w-xl mr-4">
 				<h3 className="text-2xl text-purple">
 					Publish Articles and Tutorials to Educate and Inspire the
 					Developer Community
