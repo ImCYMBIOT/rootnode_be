@@ -40,7 +40,9 @@
             |-- logo_black.png
             |-- streaming.svg
         |-- components
-            |-- article
+            |-- Archives
+                |-- index.jsx
+            |-- Articles
                 |-- ArticleDetail.jsx
             |-- Button
                 |-- Button.jsx
@@ -69,6 +71,9 @@
             |-- Navbar
                 |-- Navbar.jsx
                 |-- Navlink.jsx
+            |-- streams
+                |-- AllStreams.jsx
+                |-- index.jsx
         |-- index.css
         |-- Logo
             |-- Logo.jsx
@@ -76,9 +81,11 @@
         |-- routes
             |-- App.jsx
             |-- pages
+                |-- Archivespage.jsx
                 |-- Homepage.jsx
                 |-- Learnroute.jsx
                 |-- Loginpage.jsx
                 |-- Registerpage.jsx
+                |-- Streamspage.jsx
     |-- tailwind.config.js
     |-- vite.config.js

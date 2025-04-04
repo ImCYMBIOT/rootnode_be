@@ -22,9 +22,11 @@ router.post("/register", async (req, res) => {
     const user = new User({ name, email, password: hashedPassword }); // ✅ Save name
 
     await user.save();
-    res
-      .status(201)
-      .json({ uuid: user.uuid, message: "User registered successfully" });
+    res.status(201).json({
+      uuid: user.uuid,
+      name: user.name,
+      message: "User registered successfully",
+    });
   } catch (err) {
     console.error("Error during registration:", err); // ✅ Log the actual error
     res.status(500).json({ message: "Server error", error: err.message });
@@ -42,7 +44,7 @@ router.post("/login", async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    res.json({ uuid: user.uuid, message: "Login successful" });
+    res.json({ uuid: user.uuid, name: user.name, message: "Login successful" });
   } catch (err) {
     console.error("Error during login:", err); // ✅ Log the actual error
     res.status(500).json({ message: "Server error", error: err.message });
