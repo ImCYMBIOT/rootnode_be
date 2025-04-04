@@ -5,7 +5,7 @@ const Streamspage = () => {
 	return (
 		<>
 			<Layout>
-				<Stream></Stream>
+				<Stream />
 			</Layout>
 		</>
 	);
