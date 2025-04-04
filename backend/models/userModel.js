@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       immutable: true,
     },
+    name: { type: String, required: true, trim: true }, // ✅ Add name field
     email: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
   },
