@@ -7,6 +7,7 @@ const cors = require("cors");
 const { setupWebSocket } = require("./routes/wsRoutes");
 const repoRoutes = require("./routes/repoRoutes");
 const authRoutes = require("./auth/auth");
+const streamRoutes = require("./routes/streamRoutes");
 require("dotenv").config();
 
 // Initialize Express
@@ -16,13 +17,16 @@ const repositoriesDir = path.join(__dirname, "repositories");
 
 // Connect to MongoDB using .env variable
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Ensure repositories directory exists
 if (!fs.existsSync(repositoriesDir)) {
-  fs.mkdirSync(repositoriesDir);
+  fs.mkdirSync(repositoriesDir, { recursive: true });
 }
 
 // Set security headers
@@ -44,9 +48,7 @@ const wss = setupWebSocket(server, repositoriesDir);
 // Routes
 app.use("/repo", repoRoutes(repositoriesDir, wss)); // Repository routes
 app.use("/auth", authRoutes); // Authentication routes
-
-const streamRoutes = require("./routes/streamRoutes");
-app.use("/stream", streamRoutes);
+app.use("/stream", streamRoutes); // Streaming routes
 
 // Start server
 server
