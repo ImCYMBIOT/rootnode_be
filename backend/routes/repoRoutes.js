@@ -12,8 +12,9 @@ module.exports = (repositoriesDir, wss) => {
   router.post("/create", async (req, res) => {
     const { repoName, uuid, description } = req.body;
 
-    if (!uuid)
+    if (!uuid) {
       return res.status(400).json({ message: "User UUID is required" });
+    }
 
     const repoPath = path.join(repositoriesDir, uuid, repoName);
 
@@ -74,13 +75,15 @@ module.exports = (repositoriesDir, wss) => {
   // 📌 Commit changes
   router.post("/commit", async (req, res) => {
     const { repoName, uuid, commitMessage } = req.body;
+
     if (!uuid || !repoName || !commitMessage) {
-      return res
-        .status(400)
-        .json({ message: "UUID, repoName, and commitMessage are required" });
+      return res.status(400).json({
+        message: "UUID, repoName, and commitMessage are required",
+      });
     }
 
     const repoPath = path.join(repositoriesDir, uuid, repoName);
+
     if (!fs.existsSync(repoPath)) {
       return res.status(404).json({ message: "Repository not found" });
     }
@@ -96,6 +99,43 @@ module.exports = (repositoriesDir, wss) => {
       res.json({ message: "Changes committed", repoName, commitMessage });
     } catch (error) {
       res.status(500).json({ message: "Commit failed", error: error.message });
+    }
+  });
+
+  // 📌 Delete a repository using repoId
+  router.delete("/delete", async (req, res) => {
+    const { repoId } = req.body;
+
+    if (!repoId) {
+      return res.status(400).json({ message: "Repository ID is required" });
+    }
+
+    try {
+      const repo = await Repo.findById(repoId);
+
+      if (!repo) {
+        return res.status(404).json({ message: "Repository not found" });
+      }
+
+      const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
+
+      if (fs.existsSync(repoPath)) {
+        fs.rmSync(repoPath, { recursive: true, force: true });
+      }
+
+      await Repo.findByIdAndDelete(repoId);
+
+      res.json({
+        message: "Repository deleted successfully",
+        repoId,
+        repoName: repo.name,
+        uuid: repo.uuid,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to delete repository",
+        error: error.message,
+      });
     }
   });
 
@@ -128,7 +168,7 @@ function watchRepository(repoPath, repoName, uuid, wss) {
       .catch((err) => console.error("❌ Auto commit failed:", err));
   });
 
-  console.log(`Watching repository: ${repoName}`);
+  console.log(`👀 Watching repository: ${repoName}`);
 }
 
 // ✅ Broadcast to WebSocket clients
