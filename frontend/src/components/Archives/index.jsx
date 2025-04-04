@@ -3,15 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const Archives = () => {
 	const navigate = useNavigate();
-
 	const user = JSON.parse(localStorage.getItem("user"));
 	const userId = user?.uuid;
-
 	const [repos, setRepos] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [notFound, setNotFound] = useState(false);
-
 	const [showModal, setShowModal] = useState(false);
 	const [repoName, setRepoName] = useState("");
 	const [description, setdescription] = useState("");
@@ -78,8 +75,41 @@ const Archives = () => {
 		}
 	};
 
+	const handleDeleteRepo = async (repoId) => {
+		try {
+			const response = await fetch(
+				`http://localhost:3000/repo/delete/${repoId}`,
+				{
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			);
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.message || "Failed to delete repository");
+			}
+
+			fetchArchivesByUserID(); // Refresh list after deletion
+		} catch (err) {
+			alert("Error deleting repository: " + err.message);
+		}
+	};
+
+	useEffect(() => {
+		renderAllArchives();
+	}, [repos]);
+
 	const renderAllArchives = () => {
-		if (loading) return <p>Loading archives...</p>;
+		if (loading)
+			return (
+				<div className="flex h-[60vh] animate-pulse items-center justify-center text-xl text-white">
+					Loading archives...
+				</div>
+			);
 		if (error) return <p className="text-red-600">Error: {error}</p>;
 
 		if (notFound || repos.length === 0) {
@@ -97,11 +127,32 @@ const Archives = () => {
 				{repos.map((repo) => (
 					<li
 						key={repo._id}
-						className="rounded border p-3 text-white shadow"
+						className="flex items-center justify-between rounded border p-3 text-white shadow"
 					>
-            {console.log(repo)}
-						<h3 className="text-lg font-bold">{repo.name}</h3>
-						<p>{repo.description || "No description."}</p>
+						<div className="flex flex-col">
+							<h3 className="text-lg font-bold">{repo.name}</h3>
+							<p>{repo.description || "No description."}</p>
+						</div>
+						<div className="flex gap-4">
+							<button
+								onClick={() => handleDeleteRepo(repo._id)}
+								className="rounded bg-[#FF6961] px-3 py-1 text-sm text-white hover:bg-[#FF0000]"
+							>
+								Delete
+							</button>
+							<button
+								onClick={() => handleDeleteRepo(repo._id)}
+								className="rounded bg-[#7BA05B] px-3 py-1 text-sm text-white hover:bg-[#00693E]"
+							>
+								LiveStream
+							</button>
+							<button
+								onClick={() => handleDeleteRepo(repo._id)}
+								className="rounded bg-[#0070BB] px-3 py-1 text-sm text-white hover:bg-[#1F75FE]"
+							>
+								Contribute
+							</button>
+						</div>
 					</li>
 				))}
 			</ul>

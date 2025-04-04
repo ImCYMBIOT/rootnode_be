@@ -103,8 +103,8 @@ module.exports = (repositoriesDir, wss) => {
   });
 
   // 📌 Delete a repository using repoId
-  router.delete("/delete", async (req, res) => {
-    const { repoId } = req.body;
+  router.delete("/delete/:repoId", async (req, res) => {
+    const { repoId } = req.params; // Use params instead of req.body
 
     if (!repoId) {
       return res.status(400).json({ message: "Repository ID is required" });
@@ -119,8 +119,13 @@ module.exports = (repositoriesDir, wss) => {
 
       const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
 
-      if (fs.existsSync(repoPath)) {
-        fs.rmSync(repoPath, { recursive: true, force: true });
+      try {
+        if (fs.existsSync(repoPath)) {
+          await fs.promises.rm(repoPath, { recursive: true, force: true });
+          console.log(`🗑️ Repository folder deleted: ${repoPath}`);
+        }
+      } catch (fsErr) {
+        console.error("❌ Failed to delete repository folder:", fsErr.message);
       }
 
       await Repo.findByIdAndDelete(repoId);
@@ -154,18 +159,26 @@ function watchRepository(repoPath, repoName, uuid, wss) {
     ignoreInitial: true,
   });
 
-  watcher.on("all", (event, filePath) => {
+  watcher.on("all", async (event, filePath) => {
     console.log(`🔄 Change detected: ${event} on ${filePath}`);
 
-    const git = simpleGit(repoPath);
-    git
-      .add("./*")
-      .then(() => git.commit(`Auto commit by ${uuid} at $(date)`))
-      .then(() => {
-        console.log(`✅ Auto commit successful for ${repoName}`);
-        broadcast(wss, { repoName, event: "repo_updated", filePath });
-      })
-      .catch((err) => console.error("❌ Auto commit failed:", err));
+    // Stop if repoPath is deleted
+    if (!fs.existsSync(repoPath)) {
+      console.warn(`🛑 Skipping auto commit: ${repoPath} no longer exists`);
+      watcher.unwatch(repoPath); // Optional: stop watching
+      return;
+    }
+
+    try {
+      const git = simpleGit(repoPath);
+      await git.add("./*");
+      await git.commit(`Auto commit by ${uuid} at ${new Date().toISOString()}`);
+
+      console.log(`✅ Auto commit successful for ${repoName}`);
+      broadcast(wss, { repoName, event: "repo_updated", filePath });
+    } catch (err) {
+      console.error("❌ Auto commit failed:", err.message);
+    }
   });
 
   console.log(`👀 Watching repository: ${repoName}`);
