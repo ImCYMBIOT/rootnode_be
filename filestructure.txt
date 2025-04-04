@@ -84,8 +84,10 @@
             |-- App.jsx
             |-- pages
                 |-- Archivespage.jsx
+                |-- ContributePage.jsx
                 |-- Homepage.jsx
                 |-- Learnroute.jsx
+                |-- LiveStreamPage.jsx
                 |-- Loginpage.jsx
                 |-- Registerpage.jsx
                 |-- Streamspage.jsx
