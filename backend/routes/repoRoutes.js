@@ -10,7 +10,8 @@ module.exports = (repositoriesDir, wss) => {
 
   // 📌 Create a new repository
   router.post("/create", async (req, res) => {
-    const { repoName, uuid } = req.body;
+    const { repoName, uuid, description } = req.body;
+
     if (!uuid)
       return res.status(400).json({ message: "User UUID is required" });
 
@@ -25,15 +26,22 @@ module.exports = (repositoriesDir, wss) => {
       const git = simpleGit(repoPath);
       await git.init();
 
-      const newRepo = new Repo({ name: repoName, uuid });
+      const newRepo = new Repo({ name: repoName, uuid, description });
       await newRepo.save();
 
       watchRepository(repoPath, repoName, uuid, wss);
-      res.status(201).json({ message: "Repository created", repoName, uuid });
+
+      res.status(201).json({
+        message: "Repository created",
+        repoName,
+        uuid,
+        description,
+      });
     } catch (err) {
-      res
-        .status(500)
-        .json({ message: "Failed to create repository", error: err.message });
+      res.status(500).json({
+        message: "Failed to create repository",
+        error: err.message,
+      });
     }
   });
 
