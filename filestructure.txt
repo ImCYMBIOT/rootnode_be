@@ -13,6 +13,7 @@
     |-- package.json
     |-- repositories
     |-- routes
+        |-- contributorRoutes.js
         |-- repoRoutes.js
         |-- streamRoutes.js
         |-- wsRoutes.js

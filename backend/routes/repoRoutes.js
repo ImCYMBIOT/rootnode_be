@@ -1,9 +1,10 @@
+// repoRoutes.js
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const simpleGit = require("simple-git");
-const chokidar = require("chokidar");
 const Repo = require("../models/repoModel");
+const chokidar = require("chokidar");
 
 module.exports = (repositoriesDir, wss) => {
   const router = express.Router();
@@ -12,9 +13,7 @@ module.exports = (repositoriesDir, wss) => {
   router.post("/create", async (req, res) => {
     const { repoName, uuid, description } = req.body;
 
-    if (!uuid) {
-      return res.status(400).json({ message: "User UUID is required" });
-    }
+    if (!uuid) return res.status(400).json({ message: "User UUID is required" });
 
     const repoPath = path.join(repositoriesDir, uuid, repoName);
 
@@ -32,43 +31,9 @@ module.exports = (repositoriesDir, wss) => {
 
       watchRepository(repoPath, repoName, uuid, wss);
 
-      res.status(201).json({
-        message: "Repository created",
-        repoName,
-        uuid,
-        description,
-      });
+      res.status(201).json({ message: "Repository created", repoName, uuid, description });
     } catch (err) {
-      res.status(500).json({
-        message: "Failed to create repository",
-        error: err.message,
-      });
-    }
-  });
-
-  // 📌 Get all repositories for a user
-  router.get("/user/:uuid/repos", async (req, res) => {
-    const { uuid } = req.params;
-
-    if (!uuid) {
-      return res.status(400).json({ message: "User UUID is required" });
-    }
-
-    try {
-      const repos = await Repo.find({ uuid });
-
-      if (!repos || repos.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No repositories found for this user" });
-      }
-
-      res.json(repos);
-    } catch (err) {
-      res.status(500).json({
-        message: "Failed to fetch repositories",
-        error: err.message,
-      });
+      res.status(500).json({ message: "Failed to create repository", error: err.message });
     }
   });
 
@@ -77,9 +42,7 @@ module.exports = (repositoriesDir, wss) => {
     const { repoName, uuid, commitMessage } = req.body;
 
     if (!uuid || !repoName || !commitMessage) {
-      return res.status(400).json({
-        message: "UUID, repoName, and commitMessage are required",
-      });
+      return res.status(400).json({ message: "UUID, repoName, and commitMessage are required" });
     }
 
     const repoPath = path.join(repositoriesDir, uuid, repoName);
@@ -106,16 +69,12 @@ module.exports = (repositoriesDir, wss) => {
   router.delete("/delete", async (req, res) => {
     const { repoId } = req.body;
 
-    if (!repoId) {
-      return res.status(400).json({ message: "Repository ID is required" });
-    }
+    if (!repoId) return res.status(400).json({ message: "Repository ID is required" });
 
     try {
       const repo = await Repo.findById(repoId);
 
-      if (!repo) {
-        return res.status(404).json({ message: "Repository not found" });
-      }
+      if (!repo) return res.status(404).json({ message: "Repository not found" });
 
       const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
 
@@ -125,24 +84,15 @@ module.exports = (repositoriesDir, wss) => {
 
       await Repo.findByIdAndDelete(repoId);
 
-      res.json({
-        message: "Repository deleted successfully",
-        repoId,
-        repoName: repo.name,
-        uuid: repo.uuid,
-      });
+      res.json({ message: "Repository deleted successfully", repoId, repoName: repo.name, uuid: repo.uuid });
     } catch (error) {
-      res.status(500).json({
-        message: "Failed to delete repository",
-        error: error.message,
-      });
+      res.status(500).json({ message: "Failed to delete repository", error: error.message });
     }
   });
 
   return router;
 };
 
-// ✅ Watch repository for changes
 function watchRepository(repoPath, repoName, uuid, wss) {
   if (!fs.existsSync(repoPath)) {
     console.error(`Cannot watch: Repository ${repoName} does not exist.`);
@@ -171,7 +121,6 @@ function watchRepository(repoPath, repoName, uuid, wss) {
   console.log(`👀 Watching repository: ${repoName}`);
 }
 
-// ✅ Broadcast to WebSocket clients
 function broadcast(wss, data) {
   if (!wss) {
     console.error("WebSocket server is not initialized!");
