@@ -103,6 +103,14 @@ const Archives = () => {
 		renderAllArchives();
 	}, [repos]);
 
+	const handleStartLivestream = (repoId) => {
+		navigate(`/stream/${repoId}`);
+	};
+
+	const handleContribute = (repoId) => {
+		navigate(`/contribute/${repoId}`);
+	};
+
 	const renderAllArchives = () => {
 		if (loading)
 			return (
@@ -141,13 +149,13 @@ const Archives = () => {
 								Delete
 							</button>
 							<button
-								onClick={() => handleDeleteRepo(repo._id)}
+								onClick={() => handleStartLivestream(repo._id)}
 								className="rounded bg-[#7BA05B] px-3 py-1 text-sm text-white hover:bg-[#00693E]"
 							>
 								LiveStream
 							</button>
 							<button
-								onClick={() => handleDeleteRepo(repo._id)}
+								onClick={() => handleContribute(repo._id)}
 								className="rounded bg-[#0070BB] px-3 py-1 text-sm text-white hover:bg-[#1F75FE]"
 							>
 								Contribute
@@ -159,7 +167,7 @@ const Archives = () => {
 		);
 	};
 
-	return (
+	return userId ? (
 		<div className="min-h-[83.5vh] bg-background p-6">
 			<h1 className="mb-4 text-center text-5xl font-bold text-white">
 				Archives
@@ -225,6 +233,17 @@ const Archives = () => {
 					</div>
 				</div>
 			)}
+		</div>
+	) : (
+		<div className="flex h-[83.5vh] flex-col items-center justify-center bg-background text-white">
+			<h1 className="mb-4 text-3xl font-bold">You're not logged in</h1>
+			<p className="mb-6">Please log in to view your code archives.</p>
+			<button
+				onClick={() => navigate("/login")}
+				className="rounded bg-light-purple px-6 py-3 text-white hover:bg-bright-purple"
+			>
+				Go to Login
+			</button>
 		</div>
 	);
 };
