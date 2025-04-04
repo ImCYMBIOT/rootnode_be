@@ -1,221 +1,213 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import Button from "../Button/Button";
 
 const LearnPage = () => {
-	const [selectedCategory, setSelectedCategory] = useState("All");
-	const [articles, setArticles] = useState([]);
-	const [newArticle, setNewArticle] = useState({
+	const [selectedCategory, setSelectedCategory] = useState("Home");
+	const [showForm, setShowForm] = useState(false);
+	const [newContent, setNewContent] = useState({
+		type: "Article",
 		title: "",
 		author: "",
 		description: "",
+		videoFile: null, // new for video file upload
 	});
-	const [showForm, setShowForm] = useState(false);
 
-	useEffect(() => {
-		const fetchArticles = async () => {
-			try {
-				const response = await axios.get(
-					"http://localhost:3001/articles",
-				);
-				setArticles(response.data);
-			} catch (error) {
-				console.error("Error fetching articles:", error);
-			}
-		};
-		fetchArticles();
-	}, []);
-
-	const handleInputChange = (e) => {
-		const { name, value } = e.target;
-		setNewArticle({ ...newArticle, [name]: value });
-	};
-
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		try {
-			const response = await axios.post(
-				"http://localhost:3001/articles",
-				newArticle,
-			);
-			setArticles([...articles, response.data]);
-			setNewArticle({ title: "", author: "", description: "" });
-			setShowForm(false);
-		} catch (error) {
-			console.error("Error creating article:", error);
-		}
-	};
-
-	const videoData = [
+	// Sample video content
+	const sampleVideos = [
 		{
-			type: "Videos",
-			title: "Video 1",
+			type: "Video",
+			title: "React for Beginners",
 			author: "John Doe",
-			upvotes: 120,
-			description: "Introduction to React",
-			time: "2 hours ago",
+			description: "Start building with React in under 20 minutes.",
 		},
 		{
-			type: "Videos",
-			title: "Video 2",
+			type: "Video",
+			title: "JavaScript Deep Dive",
 			author: "Jane Smith",
-			upvotes: 340,
-			description: "Advanced JavaScript",
-			time: "5 hours ago",
-		},
-		{
-			type: "Videos",
-			title: "Video 3",
-			author: "Alex Brown",
-			upvotes: 220,
-			description: "Understanding CSS Flexbox",
-			time: "1 day ago",
+			description: "Master closures, scopes, and the event loop.",
 		},
 	];
 
-	const articleData = articles.map((article) => ({
-		type: "Articles",
-		title: article.title,
-		author: article.author,
-		upvotes: article.upvotes,
-		description: article.description,
-		time: new Date(article.time).toLocaleString(),
-		id: article._id,
-	}));
+	// Sample article content
+	const sampleArticles = [
+		{
+			type: "Article",
+			title: "Demystifying Promises in JS",
+			author: "Alex Green",
+			description: "Understand how async code works with promises.",
+		},
+		{
+			type: "Article",
+			title: "CSS Flexbox vs Grid",
+			author: "Sarah Blue",
+			description: "Learn when to use Flexbox and when to use Grid.",
+		},
+	];
 
-	const contentData = [...videoData, ...articleData];
+	const allContent = [...sampleArticles, ...sampleVideos];
 
-	const filteredContent =
-		selectedCategory === "All"
-			? contentData
-			: contentData.filter(
-					(content) => content.type === selectedCategory,
-				);
+	let filteredContent = [];
+	if (selectedCategory === "Home") filteredContent = allContent;
+	if (selectedCategory === "Videos") filteredContent = sampleVideos;
+	if (selectedCategory === "Articles") filteredContent = sampleArticles;
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		setNewContent({ ...newContent, [name]: value });
+	};
+
+	const handleFileChange = (e) => {
+		setNewContent({ ...newContent, videoFile: e.target.files[0] });
+	};
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		console.log("Submitted content:", newContent);
+		if (newContent.type === "Video" && newContent.videoFile) {
+			console.log("Video file to upload:", newContent.videoFile.name);
+		}
+		// Reset
+		setNewContent({
+			type: "Article",
+			title: "",
+			author: "",
+			description: "",
+			videoFile: null,
+		});
+		setShowForm(false);
+	};
 
 	return (
-		<div className="min-h-screen bg-background text-white">
-			<nav className="flex items-center justify-center border-solid border-purple bg-background p-4">
+		<div className="min-h-screen bg-[#121212] text-white">
+			{/* Navbar */}
+			<nav className="flex items-center justify-center bg-gray-900 p-4">
 				<div className="flex space-x-2">
 					<input
 						type="text"
 						placeholder="Search for technologies..."
-						className="w-96 rounded bg-white p-2 text-background-purple focus:outline-none"
+						className="w-96 rounded bg-white p-2 text-purple-500 focus:outline-none"
 					/>
 					<Button text={"Search"} />
 				</div>
 			</nav>
 
-			{/* Filter Section */}
-			<div className="mt-6 flex items-center space-x-4">
-				<div className="mb-8 flex w-full justify-center space-x-4 overflow-x-auto">
-					{["All", "Videos", "Articles", "Vlogs"].map((category) => (
-						<button
-							key={category}
-							onClick={() => setSelectedCategory(category)} // Update state when clicked
-							className={`${
-								selectedCategory === category
-									? "bg-bright-purple"
-									: "bg-purple hover:bg-light-purple"
-							} rounded p-2 text-white shadow-md transition duration-300`}
-						>
-							{category}
-						</button>
-					))}
-					<Button
-						text="New Article"
-						onClick={() => setShowForm(!showForm)}
-					/>
-				</div>
+			{/* Tabs */}
+			<div className="mt-6 mb-4 flex w-full justify-center space-x-4 overflow-x-auto">
+				{["Home", "Videos", "Articles", "Create"].map((category) => (
+					<button
+						key={category}
+						onClick={() => {
+							setSelectedCategory(category);
+							if (category === "Create") setShowForm(true);
+							else setShowForm(false);
+						}}
+						className={`${
+							selectedCategory === category
+								? "bg-purple-700"
+								: "bg-purple-500 hover:bg-purple-600"
+						} rounded p-2 text-white shadow-md transition duration-300`}
+					>
+						{category}
+					</button>
+				))}
 			</div>
 
-			{/* Article Submission Form */}
-			{showForm && (
-				<div className="mx-auto max-w-lg rounded-lg bg-light-background p-4 shadow-md">
-					<h2 className="mb-4 text-2xl font-bold">
-						Submit a New Article
-					</h2>
-					<form onSubmit={handleSubmit}>
-						<div className="mb-4">
-							<label className="text-gray-700 block text-sm font-medium">
-								Title
-							</label>
+			{/* Create Section */}
+			{selectedCategory === "Create" && showForm && (
+				<div className="mx-auto max-w-lg rounded-lg bg-gray-800 p-6 shadow-md mb-10">
+					<h2 className="mb-4 text-2xl font-bold text-purple-400">Create New Content</h2>
+					<form onSubmit={handleSubmit} className="space-y-4">
+						<select
+							name="type"
+							value={newContent.type}
+							onChange={handleInputChange}
+							className={`w-full rounded p-2 text-white focus:outline-none focus:ring-2 ${
+								newContent.type === "Article" ? "bg-[#6B21A8]" : "bg-[#9333EA]"
+							}`}
+						>
+							<option value="Article" className="bg-[#6B21A8] text-white">
+								Article
+							</option>
+							<option value="Video" className="bg-[#9333EA] text-white">
+								Video
+							</option>
+						</select>
+
+						<input
+							type="text"
+							name="title"
+							value={newContent.title}
+							onChange={handleInputChange}
+							placeholder="Title"
+							className="w-full rounded bg-gray-700 p-2 text-white"
+							required
+						/>
+
+						<input
+							type="text"
+							name="author"
+							value={newContent.author}
+							onChange={handleInputChange}
+							placeholder="Author"
+							className="w-full rounded bg-gray-700 p-2 text-white"
+							required
+						/>
+
+						<textarea
+							name="description"
+							value={newContent.description}
+							onChange={handleInputChange}
+							placeholder="Description"
+							className="w-full rounded bg-gray-700 p-2 text-white"
+							required
+						/>
+
+						{newContent.type === "Video" && (
 							<input
-								type="text"
-								name="title"
-								value={newArticle.title}
-								onChange={handleInputChange}
-								className="border-gray-300 focus:border-indigo-300 focus:ring-indigo-200 mt-1 block w-full rounded-md shadow-sm focus:ring focus:ring-opacity-50"
+								type="file"
+								accept="video/*"
+								onChange={handleFileChange}
+								className="w-full rounded bg-gray-700 p-2 text-white"
 								required
 							/>
-						</div>
-						<div className="mb-4">
-							<label className="text-gray-700 block text-sm font-medium">
-								Author
-							</label>
-							<input
-								type="text"
-								name="author"
-								value={newArticle.author}
-								onChange={handleInputChange}
-								className="border-gray-300 focus:border-indigo-300 focus:ring-indigo-200 mt-1 block w-full rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-								required
-							/>
-						</div>
-						<div className="mb-4">
-							<label className="text-gray-700 block text-sm font-medium">
-								Description
-							</label>
-							<textarea
-								name="description"
-								value={newArticle.description}
-								onChange={handleInputChange}
-								className="border-gray-300 focus:border-indigo-300 focus:ring-indigo-200 mt-1 block w-full rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-								required
-							></textarea>
-						</div>
-						<Button text="Submit" />
+						)}
+
+						<button
+							type="submit"
+							className="w-full rounded bg-purple-600 p-2 text-white hover:bg-purple-700 transition duration-300"
+						>
+							Submit
+						</button>
 					</form>
 				</div>
 			)}
 
-			<div className="mx-auto mt-8 grid max-w-full grid-cols-1 gap-6 px-5 md:grid-cols-2 lg:grid-cols-3">
-				{filteredContent.map((content, index) => {
-					const isArticle = content.type === "Articles";
-
-					let contentStyle = "w-full h-60 md:h-72 lg:h-80";
-
-					return (
-						<div
-							key={index}
-							className={`transform overflow-hidden rounded-lg bg-light-background shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl ${contentStyle} flex flex-col justify-between`}
-						>
-							<Link
-								to={isArticle ? `/articles/${content.id}` : "#"}
-								className="flex h-full items-center justify-center p-4 text-center text-2xl font-semibold"
-							>
-								{content.title}
-							</Link>
-
-							<div className="space-y-1 bg-gunmetal p-4 text-white">
-								<div className="flex justify-between">
-									<span className="font-semibold">
-										{content.author}
-									</span>
-									<span>{content.upvotes} upvotes</span>
-								</div>
-								<div className="line-clamp-2 overflow-hidden text-ellipsis">
-									{content.description}
-								</div>
-
-								<div className="text-gray-400 text-sm">
-									{content.time}
-								</div>
+			{/* Content Display (not shown in Create section) */}
+			{selectedCategory !== "Create" && (
+				<div className="mt-6 max-w-4xl mx-auto px-4">
+					{filteredContent.length === 0 ? (
+						<p className="text-center text-gray-400">No content available.</p>
+					) : (
+						filteredContent.map((item, index) => (
+							<div key={index} className="mb-4 rounded-lg bg-gray-800 p-4 shadow-md">
+								<h3 className="text-lg font-bold text-purple-400">{item.title}</h3>
+								<p className="text-sm text-gray-300">By {item.author}</p>
+								<p className="mt-2 text-gray-200">{item.description}</p>
+								{item.type === "Video" && item.url && (
+									<a
+										href={item.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="mt-2 inline-block text-purple-500 hover:text-purple-300"
+									>
+										Watch Video
+									</a>
+								)}
 							</div>
-						</div>
-					);
-				})}
-			</div>
+						))
+					)}
+				</div>
+			)}
 		</div>
 	);
 };
