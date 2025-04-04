@@ -2,11 +2,11 @@ import community from "../../../assets/community.png";
 
 const Community = () => {
 	return (
-		<div className="flex items-center justify-between bg-background px-72 py-16">
+		<div className="flex items-center justify-between bg-background px-36 py-16">
 			<img
 				src={community}
 				alt="articles image"
-				className="h-96 rounded-xl"
+				className="h-96 mr-4 rounded-xl"
 			/>
 			<div className="max-w-xl">
 				<h3 className="text-2xl text-purple">

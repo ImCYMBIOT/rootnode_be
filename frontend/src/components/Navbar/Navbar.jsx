@@ -25,7 +25,7 @@ const Navbar = () => {
 			/>
 			<div className="hidden md:block">
 				<ul className="items-center justify-between gap-5 md:flex">
-					<Navlink text="Streams" route="streams" />
+					<Navlink text="Streams" route="stream" />
 					<Navlink text="Archives" route="archives" />
 					<Navlink text="Sandbox" route="sandbox" />
 					<Navlink text="Learn" route="learn" />

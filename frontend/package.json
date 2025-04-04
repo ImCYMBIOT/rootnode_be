@@ -10,6 +10,8 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"amqplib": "^0.10.7",
+		"axios": "^1.8.4",
 		"hamburger-react": "^2.5.1",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
@@ -29,21 +31,15 @@
 		"postcss": "^8.4.47",
 		"prettier": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.6",
-		"tailwind": "^4.0.0",
 		"tailwindcss": "^3.4.11",
 		"vite": "^5.4.1"
 	},
 	"prettier": {
-		"plugins": [
-			"prettier-plugin-tailwindcss"
-		],
-		"spaces": 4,
+		"plugins": ["prettier-plugin-tailwindcss"],
 		"tabWidth": 4,
-		"useTabs": true,
-		"editor.formatOnSave": true
+		"useTabs": true
 	},
 	"description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-	"main": "eslint.config.js",
 	"keywords": [],
 	"author": "",
 	"license": "ISC"
