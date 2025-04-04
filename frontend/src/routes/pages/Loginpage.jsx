@@ -15,14 +15,14 @@ const Login = () => {
 		setError("");
 
 		try {
-			const res = await axios.post("http://localhost:5000/auth/login", {
+			const res = await axios.post("http://localhost:3000/auth/login", {
 				email,
 				password,
 			});
 
 			const { uuid, name } = res.data;
 			localStorage.setItem("user", JSON.stringify({ uuid, name }));
-
+			console.log(res.data);
 			navigate("/");
 		} catch (err) {
 			setError(err.response?.data?.message || "Login failed");

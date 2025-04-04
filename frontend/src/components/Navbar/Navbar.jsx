@@ -23,7 +23,7 @@ const Navbar = () => {
 	const handleLogout = () => {
 		localStorage.removeItem("user");
 		setUserName(null);
-		navigate("/login");
+		navigate("/");
 	};
 
 	const handleLogin = () => {
@@ -42,18 +42,19 @@ const Navbar = () => {
 			/>
 			<div className="hidden md:block">
 				<ul className="items-center justify-between gap-5 md:flex">
-					<Navlink text="Streams" route="/stream" />
-					<Navlink text="Archives" route="/archives" />
-					<Navlink text="Sandbox" route="/sandbox" />
-					<Navlink text="Learn" route="/learn" />
-					<Navlink text="Devs" route="/devs" />
+					<Navlink text="Streams" route="stream" />
+					<Navlink text="Archives" route="archives" />
+					<Navlink text="Sandbox" route="sandbox" />
+					<Navlink text="Learn" route="learn" />
+					<Navlink text="Devs" route="devs" />
 					{userName ? (
 						<div className="relative">
 							<button
 								onClick={() => setDropdownOpen(!dropdownOpen)}
-								className="ml-4 rounded-lg bg-light-purple px-4 py-2 font-bold text-white hover:bg-bright-purple"
+								className="rounded-lg bg-light-purple px-4 py-2 font-bold text-white hover:bg-bright-purple"
 							>
-								{userName}
+								{userName.charAt(0).toUpperCase() +
+									userName.slice(1)}
 							</button>
 							{dropdownOpen && (
 								<div className="absolute right-0 mt-2 w-32 rounded-lg bg-white shadow-lg">
