@@ -8,28 +8,7 @@ const Repo = require("../models/repoModel");
 module.exports = (repositoriesDir) => {
   const router = express.Router();
 
-  // 📜 Get all repositories for a user
-  router.get("/user/:uuid/repos", async (req, res) => {
-    const { uuid } = req.params;
 
-    if (!uuid) {
-      return res.status(400).json({ message: "User UUID is required" });
-    }
-
-    try {
-      const repos = await Repo.find({ uuid });
-      if (!repos || repos.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "No repositories found for this user" });
-      }
-      res.json(repos);
-    } catch (err) {
-      res
-        .status(500)
-        .json({ message: "Failed to fetch repositories", error: err.message });
-    }
-  });
 
   // 📜 Get latest commits for a repository
   router.get("/repo/:repoId/commits", async (req, res) => {
