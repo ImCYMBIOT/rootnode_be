@@ -12,6 +12,7 @@ const repoRoutes = require("./routes/repoRoutes");
 const authRoutes = require("./auth/auth");
 const streamRoutes = require("./routes/streamRoutes");
 const contributorRoutes = require("./routes/contributorRoutes");
+const learnRoutes = require("./routes/learnRoutes");
 
 // Constants
 const PORT = process.env.PORT || 3000;
@@ -57,6 +58,7 @@ app.use("/repo", repoRoutes(repositoriesDir, wss));
 app.use("/auth", authRoutes);
 app.use("/stream", streamRoutes);
 app.use("/contribute", contributorRoutes);
+app.use("/learn", learnRoutes);
 
 // Health check
 app.get("/", (req, res) => {
