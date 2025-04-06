@@ -14,6 +14,7 @@ const streamRoutes = require("./routes/streamRoutes");
 const contributorRoutes = require("./routes/contributorRoutes");
 const learnRoutes = require("./routes/learnRoutes");
 const fileRoutes = require("./routes/filesRoutes");
+const learnUploads = require("./routes/learnUploads");
 
 // Constants
 const PORT = process.env.PORT || 3000;
@@ -42,6 +43,7 @@ app.use(cors());
 app.use(express.json());
 app.use(helmet()); // Adds secure headers automatically
 
+
 // Custom Content Security Policy (can be merged with helmet’s config)
 app.use((req, res, next) => {
   res.setHeader(
@@ -50,6 +52,15 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    setHeaders: (res) => {
+      res.set("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
 
 // WebSocket setup
 const wss = setupWebSocket(server, repositoriesDir);
@@ -61,6 +72,7 @@ app.use("/stream", streamRoutes);
 app.use("/contribute", contributorRoutes);
 app.use("/learn", learnRoutes);
 app.use("/files", fileRoutes);
+app.use("/learnUploads", learnUploads);
 
 // Health check
 app.get("/", (req, res) => {
