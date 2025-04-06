@@ -1,252 +1,298 @@
-import { useState, useEffect } from "react";
-import Button from "../Button/Button";
+import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player";
+import axios from "axios";
+import { FaPlus, FaSearch } from "react-icons/fa";
 
 const LearnPage = () => {
-	const [selectedCategory, setSelectedCategory] = useState("Home");
-	const [showForm, setShowForm] = useState(false);
-	const [newContent, setNewContent] = useState({
-		type: "Article",
-		title: "",
-		author: "",
-		description: "",
-		file: null,
-	});
+  const [resources, setResources] = useState([]);
+  const [filteredResources, setFilteredResources] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("Home");
+  const [showCreate, setShowCreate] = useState(false);
+  const [uploadType, setUploadType] = useState("video");
+  const [uploadData, setUploadData] = useState({
+    title: "",
+    author: "",
+    description: "",
+    file: null,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
 
-	const [videos, setVideos] = useState([]);
-	const [articles, setArticles] = useState([]);
-	const [displayCount, setDisplayCount] = useState(9);
+  const fetchResources = async () => {
+    try {
+      setLoading(true);
+      const [videosRes, articlesRes] = await Promise.all([
+        axios.get("http://localhost:3000/learn/videos"),
+        axios.get("http://localhost:3000/learn/articles"),
+      ]);
 
-	useEffect(() => {
-		fetch("http://localhost:3000/learn/videos")
-			.then((res) => res.json())
-			.then((data) => setVideos(data))
-			.catch((err) => console.error("Error fetching videos:", err));
+      const videos = videosRes.data.map((v) => ({ ...v, type: "Video" }));
+      const articles = articlesRes.data.map((a) => ({ ...a, type: "Article" }));
 
-		fetch("http://localhost:3000/learn/articles")
-			.then((res) => res.json())
-			.then((data) => setArticles(data))
-			.catch((err) => console.error("Error fetching articles:", err));
-	}, []);
+      const allResources = [...videos, ...articles].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+      setResources(allResources);
+      setFilteredResources(allResources);
+    } catch (err) {
+      setError("Failed to fetch resources");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-	let filteredContent = [];
+  useEffect(() => {
+    fetchResources();
+  }, []);
 
-	if (selectedCategory === "Home") {
-		const maxItems = 9;
-		const half = Math.floor(maxItems / 2);
+  const handleFilterChange = (type) => {
+    setActiveTab(type);
+    setShowCreate(false);
 
-		let displayArticles = articles.slice(0, half);
-		let displayVideos = videos.slice(0, maxItems - displayArticles.length);
+    if (type === "Home") {
+      const videos = resources.filter((r) => r.type === "Video");
+      const articles = resources.filter((r) => r.type === "Article");
 
-		if (displayArticles.length < half) {
-			displayVideos = videos.slice(0, maxItems - displayArticles.length);
-		}
-		if (displayVideos.length < maxItems - half) {
-			displayArticles = articles.slice(
-				0,
-				maxItems - displayVideos.length,
-			);
-		}
+      const shuffledVideos = [...videos].sort(() => 0.5 - Math.random());
+      const shuffledArticles = [...articles].sort(() => 0.5 - Math.random());
 
-		filteredContent = [...displayArticles, ...displayVideos];
-	} else if (selectedCategory === "Videos") {
-		filteredContent = videos.slice(0, displayCount);
-	} else if (selectedCategory === "Articles") {
-		filteredContent = articles.slice(0, displayCount);
-	}
+      const videoCount = 4;
+      const articleCount = 5;
 
-	const isAllContentLoaded =
-		(selectedCategory === "Home" && articles.length + videos.length <= 9) ||
-		(selectedCategory === "Videos" && videos.length <= displayCount) ||
-		(selectedCategory === "Articles" && articles.length <= displayCount);
+      const selectedVideos = shuffledVideos.slice(0, videoCount);
+      const selectedArticles = shuffledArticles.slice(0, articleCount);
 
-	const handleInputChange = (e) => {
-		const { name, value } = e.target;
-		setNewContent({ ...newContent, [name]: value });
-	};
+      const combined = [...selectedVideos, ...selectedArticles]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 9); // Just in case
 
-	const handleFileChange = (e) => {
-		setNewContent({ ...newContent, file: e.target.files[0] });
-	};
+      setFilteredResources(combined);
+    } else {
+      setFilteredResources(resources.filter((r) => r.type === type));
+    }
+  };
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		console.log("Submitted content:", newContent);
-		if (newContent.file) {
-			console.log("Uploaded file:", newContent.file.name);
-		}
-		setNewContent({
-			type: "Article",
-			title: "",
-			author: "",
-			description: "",
-			file: null,
-		});
-		setShowForm(false);
-	};
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUploadData((prev) => ({ ...prev, file }));
+    }
+  };
 
-	const handleLoadMore = () => {
-		setDisplayCount(displayCount + 9);
-	};
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUploadData((prev) => ({ ...prev, [name]: value }));
+  };
 
-	return (
-		<div className="min-h-screen bg-background text-white">
-			<nav className="bg-gray-900 flex items-center justify-center p-4">
-				<div className="flex space-x-2">
-					<input
-						type="text"
-						placeholder="Search for technologies..."
-						className="text-purple-300 w-96 rounded bg-[#1F1B24] p-2 focus:outline-none"
-					/>
-					<Button text={"Search"} />
-				</div>
-			</nav>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("title", uploadData.title);
+      formData.append("author", uploadData.author);
+      formData.append("description", uploadData.description);
+      formData.append(uploadType, uploadData.file);
 
-			<div className="mb-4 mt-6 flex w-full justify-center space-x-4 overflow-x-auto">
-				{["Home", "Videos", "Articles", "Create"].map((category) => (
-					<button
-						key={category}
-						onClick={() => {
-							setSelectedCategory(category);
-							if (category === "Create") setShowForm(true);
-							else setShowForm(false);
-							setDisplayCount(9);
-						}}
-						className={`$ { selectedCategory === category ? "bg-purple-700" : "bg-purple-500 hover:bg-purple-600" } rounded p-2 text-white shadow-md transition duration-300`}
-					>
-						{category}
-					</button>
-				))}
-			</div>
+      await axios.post(
+        `http://localhost:3000/learn/${uploadType}s`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-			{selectedCategory === "Create" && showForm && (
-				<div className="bg-gray-800 mx-auto mb-10 max-w-lg rounded-lg p-6 shadow-md">
-					<h2 className="text-blue-400 mb-4 text-2xl font-bold">
-						Create New Content
-					</h2>
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<select
-							name="type"
-							value={newContent.type}
-							onChange={handleInputChange}
-							className={`$ { newContent.type === "Article" ? bg-[#551e98] } w-full rounded p-2 text-white focus:outline-none focus:ring-2`}
-						>
-							<option value="Article">Article</option>
-							<option value="Video">Video</option>
-						</select>
+      setUploadData({
+        title: "",
+        author: "",
+        description: "",
+        file: null,
+      });
+      setUploadType("video");
+      setShowCreate(false);
+      fetchResources();
+    } catch (err) {
+      setError("Failed to upload file");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-						<input
-							type="text"
-							name="title"
-							value={newContent.title}
-							onChange={handleInputChange}
-							placeholder="Title"
-							className="text-purple-200 placeholder-purple-400 w-full rounded bg-[#551e98] p-2"
-							required
-						/>
+  const handleSearch = () => {
+    const query = searchQuery.toLowerCase();
+    const filtered = resources.filter((item) =>
+      item.title.toLowerCase().includes(query)
+    );
+    setFilteredResources(filtered);
+    setActiveTab("Search");
+    setShowCreate(false);
+  };
 
-						<input
-							type="text"
-							name="author"
-							value={newContent.author}
-							onChange={handleInputChange}
-							placeholder="Author"
-							className="text-purple-200 placeholder-purple-400 w-full rounded bg-[#551e98] p-2"
-							required
-						/>
+  return (
+    <div className="min-h-screen px-6 py-8 bg-background">
+      <div className="max-w-7xl mx-auto">
+        {/* Search Bar */}
+        <div className="flex justify-center mb-8">
+          <input
+            type="text"
+            placeholder="Search by title..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full max-w-md px-4 py-2 rounded-l-md bg-gray-800 text-white focus:outline-none"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-[#8122bc] px-4 py-2 rounded-r-md text-white hover:bg-purple-700"
+          >
+            <FaSearch />
+          </button>
+        </div>
 
-						<textarea
-							name="description"
-							value={newContent.description}
-							onChange={handleInputChange}
-							placeholder="Description"
-							className="text-purple-200 placeholder-purple-400 w-full rounded bg-[#551e98] p-2"
-							required
-						/>
+        {/* Filter + Create Centered */}
+        <div className="flex justify-center flex-wrap gap-4 mb-8">
+          {["Home", "Video", "Article"].map((tab) => (
+            <div key={tab} className="bg-[#8122bc] p-3 rounded-lg shadow-lg">
+              <button
+                onClick={() => handleFilterChange(tab)}
+                className={`px-5 py-2 rounded font-semibold w-28 ${
+                  activeTab === tab && !showCreate
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                }`}
+              >
+                {tab}
+              </button>
+            </div>
+          ))}
 
-						<input
-							type="file"
-							accept={
-								newContent.type === "Video"
-									? "video/*"
-									: ".pdf,.doc,.docx"
-							}
-							onChange={handleFileChange}
-							className="bg-gray-700 text-purple-200 w-full rounded p-2"
-							required
-						/>
+          <div className="bg-gray-800 p-3 rounded-lg shadow-lg">
+            <button
+              onClick={() => {
+                setShowCreate(true);
+                setActiveTab("");
+              }}
+              className="bg-[#8122bc] hover:bg-blue-700 px-5 py-2 rounded w-28 flex justify-center gap-2 text-white"
+            >
+              <FaPlus /> Create
+            </button>
+          </div>
+        </div>
 
-						<button
-							type="submit"
-							className="bg-purple-600 hover:bg-purple-700 w-full rounded p-2 text-white transition duration-300"
-						>
-							Submit
-						</button>
-					</form>
-				</div>
-			)}
+        {/* Create Form */}
+        {showCreate && (
+          <form
+            onSubmit={handleSubmit}
+            className="bg-[#3c3ca6] p-6 rounded-lg mb-8 max-w-2xl mx-auto"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-white">
+              Create New Content
+            </h2>
+            <div className="grid gap-4">
+              <select
+                value={uploadType}
+                onChange={(e) => setUploadType(e.target.value)}
+                className="bg-[#3c3ca6] text-white px-4 py-2 rounded-lg"
+              >
+                <option value="video">Video</option>
+                <option value="article">Article</option>
+              </select>
+              <input
+                type="text"
+                name="title"
+                placeholder="Title"
+                value={uploadData.title}
+                onChange={handleInputChange}
+                className="bg-[#3c3ca6] text-white px-4 py-2 rounded-lg"
+                required
+              />
+              <input
+                type="text"
+                name="author"
+                placeholder="Author"
+                value={uploadData.author}
+                onChange={handleInputChange}
+                className="bg-[#3c3ca6] text-white px-4 py-2 rounded-lg"
+                required
+              />
+              <textarea
+                name="description"
+                placeholder="Description"
+                value={uploadData.description}
+                onChange={handleInputChange}
+                className="bg-[#3c3ca6] text-white px-4 py-2 rounded-lg"
+                required
+              />
+              <input
+                type="file"
+                accept={uploadType === "video" ? "video/*" : ".pdf,.doc,.docx"}
+                onChange={handleFileChange}
+                className="bg-gray-700 text-white px-4 py-2 rounded-lg"
+                required
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-white font-semibold"
+              >
+                {loading ? "Uploading..." : "Submit"}
+              </button>
+            </div>
+          </form>
+        )}
 
-			{selectedCategory !== "Create" && (
-				<div className="min-h-screen w-full px-8 py-6">
-					{filteredContent.length === 0 ? (
-						<p className="text-gray-400 w-full text-center">
-							No content available.
-						</p>
-					) : (
-						<div className="grid w-full grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
-							{filteredContent.map((item, index) => (
-								<div
-									key={index}
-									className="flex min-h-[400px] flex-col justify-between rounded-xl bg-gradient-to-br from-[#4c1d95] to-[#6b21a8] p-4 shadow-xl transition-transform duration-300 hover:scale-105"
-								>
-									<h3 className="text-purple-300 mb-2 text-xl font-semibold">
-										{item.title}
-									</h3>
-									<p className="text-gray-300 mb-1 text-lg">
-										By {item.author}
-									</p>
-									<p className="text-gray-100 mb-2 text-lg">
-										{item.description}
-									</p>
+        {/* Error */}
+        {error && <div className="bg-red-600 p-4 rounded mb-6">{error}</div>}
 
-									{item.type === "Article" &&
-										item.filepath && (
-											<a
-												href={`/${item.filepath}`}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-blue-400 text-lg underline"
-											>
-												Read Article
-											</a>
-										)}
+        {/* Grid */}
+        {!showCreate && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredResources.map((item) => (
+              <div
+                key={item._id}
+                className="bg-[#3c3ca6] rounded-lg overflow-hidden shadow-md flex flex-col"
+              >
+                <div className="p-4">
+                  <h3 className="text-xl font-bold mb-1 text-white">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-300 mb-2">By {item.author}</p>
+                  <p className="text-gray-200 mb-4">{item.description}</p>
 
-									{item.type === "Video" && item.filepath && (
-										<div className="mt-3 aspect-video w-full overflow-hidden rounded-lg">
-											<ReactPlayer
-												url={`http://localhost:3000/${item.filepath}`}
-												controls
-												width="100%"
-												height="100%"
-												config={{
-													file: {
-														attributes: {
-															controlsList:
-																"nodownload",
-														},
-													},
-												}}
-											/>
-										</div>
-									)}
-								</div>
-							))}
-						</div>
-					)}
-				</div>
-			)}
-		</div>
-	);
+                  {item.type === "Video" && (
+                    <div className="aspect-video rounded-lg overflow-hidden">
+                      <ReactPlayer
+                        url={item.videoUrl}
+                        controls
+                        width="100%"
+                        height="100%"
+                      />
+                    </div>
+                  )}
+
+                  {item.type === "Article" && (
+                    <a
+                      href={item.downloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-300 hover:underline mt-2 block"
+                    >
+                      Download Article
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default LearnPage;
+  

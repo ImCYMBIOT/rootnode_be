@@ -14,20 +14,22 @@ const streamRoutes = require("./routes/streamRoutes");
 const contributorRoutes = require("./routes/contributorRoutes");
 const learnRoutes = require("./routes/learnRoutes");
 const fileRoutes = require("./routes/filesRoutes");
-const learnUploads = require("./routes/learnUploads");
 
 // Constants
 const PORT = process.env.PORT || 3000;
 const repositoriesDir = path.join(__dirname, "repositories");
+const uploadsDir = path.join(__dirname, "uploads");
 
 // Initialize Express
 const app = express();
 const server = http.createServer(app);
 
-// Ensure repositories directory exists
-if (!fs.existsSync(repositoriesDir)) {
-  fs.mkdirSync(repositoriesDir, { recursive: true });
-}
+// Ensure required directories exist
+[repositoriesDir, uploadsDir, path.join(uploadsDir, "videos"), path.join(uploadsDir, "articles")].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
 
 // Connect to MongoDB
 mongoose
@@ -38,29 +40,62 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(helmet()); // Adds secure headers automatically
+// CORS configuration
+app.use(cors({
+  origin: "http://localhost:5173", // Frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Range"],
+  exposedHeaders: ["Content-Range", "Accept-Ranges", "Content-Length", "Content-Type"],
+  credentials: true
+}));
 
-
-// Custom Content Security Policy (can be merged with helmet’s config)
-app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; connect-src 'self' ws:;"
-  );
-  next();
-});
-
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"), {
-    setHeaders: (res) => {
-      res.set("Cross-Origin-Resource-Policy", "cross-origin");
+// Security headers with video streaming support
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      mediaSrc: ["'self'", "blob:", "data:"],
+      imgSrc: ["'self'", "blob:", "data:"],
+      connectSrc: ["'self'", "ws:", "wss:", "http://localhost:3000", "http://localhost:5173"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
     },
-  })
-);
+  },
+}));
+
+// Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded files with proper headers
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+  setHeaders: (res, filePath) => {
+    // Set appropriate headers based on file type
+    if (filePath.endsWith('.mp4') || filePath.endsWith('.webm') || filePath.endsWith('.ogg')) {
+      res.set({
+        'Accept-Ranges': 'bytes',
+        'Content-Type': 'video/mp4',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      });
+    } else if (filePath.endsWith('.pdf')) {
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      });
+    } else if (filePath.endsWith('.doc') || filePath.endsWith('.docx')) {
+      res.set({
+        'Content-Type': 'application/msword',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      });
+    }
+    // Enable partial content and caching
+    res.set({
+      "Cache-Control": "public, max-age=3600",
+    });
+  },
+}));
 
 // WebSocket setup
 const wss = setupWebSocket(server, repositoriesDir);
@@ -72,11 +107,18 @@ app.use("/stream", streamRoutes);
 app.use("/contribute", contributorRoutes);
 app.use("/learn", learnRoutes);
 app.use("/files", fileRoutes);
-app.use("/learnUploads", learnUploads);
 
 // Health check
 app.get("/", (req, res) => {
   res.send("🚀 RootNode backend is up and running!");
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+  });
 });
 
 // Fallback for unknown routes

@@ -1,0 +1,200 @@
+[{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7703"
+  },
+  "title": "Intro to JavaScript",
+  "author": "CodeCamp",
+  "description": "Basics of JavaScript for beginners.",
+  "videoPath": "https://download.samplelib.com/mp4/sample-5s.mp4",
+  "thumbnail": "/thumbnails/js1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7704"
+  },
+  "title": "Advanced JavaScript",
+  "author": "DevPro",
+  "description": "Closures, Hoisting and Prototypes explained.",
+  "videoPath": "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
+  "thumbnail": "/thumbnails/js2.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7705"
+  },
+  "title": "React Crash Course",
+  "author": "Frontend Mastery",
+  "description": "Build a complete app using React.js.",
+  "videoPath": "https://file-examples.com/storage/fe9e906836a4e7aa36c5a4e/2017/04/file_example_MP4_480_1_5MG.mp4",
+  "thumbnail": "/thumbnails/react1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7706"
+  },
+  "title": "Node.js for Beginners",
+  "author": "Backend Pro",
+  "description": "Learn how to build servers using Node.js.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
+  "thumbnail": "/thumbnails/node1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7707"
+  },
+  "title": "Express API Tutorial",
+  "author": "CodeManiac",
+  "description": "Building REST APIs with Express.js.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-10s.mp4",
+  "thumbnail": "/thumbnails/express1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7708"
+  },
+  "title": "MongoDB Quick Start",
+  "author": "DB Ninja",
+  "description": "Setting up MongoDB and doing basic queries.",
+  "videoPath": "https://download.samplelib.com/mp4/sample-10s.mp4",
+  "thumbnail": "/thumbnails/mongo1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7709"
+  },
+  "title": "HTML & CSS Basics",
+  "author": "DesignSchool",
+  "description": "Create beautiful websites using HTML and CSS.",
+  "videoPath": "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4",
+  "thumbnail": "/thumbnails/htmlcss1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e770a"
+  },
+  "title": "Build a Portfolio Website",
+  "author": "Creative Dev",
+  "description": "Step-by-step guide to building a portfolio site.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-15s.mp4",
+  "thumbnail": "/thumbnails/portfolio1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e770b"
+  },
+  "title": "Understanding Git",
+  "author": "VersionControl101",
+  "description": "How to use Git and GitHub effectively.",
+  "videoPath": "https://download.samplelib.com/mp4/sample-20s.mp4",
+  "thumbnail": "/thumbnails/git1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e770c"
+  },
+  "title": "Debugging in VS Code",
+  "author": "DevTools Academy",
+  "description": "Learn how to debug JS in Visual Studio Code.",
+  "videoPath": "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
+  "thumbnail": "/thumbnails/vscode1.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e770d"
+  },
+  "title": "ES6 Features",
+  "author": "ModernJS",
+  "description": "Learn about let, const, arrow functions, and more.",
+  "videoPath": "https://file-examples.com/storage/fe9e906836a4e7aa36c5a4e/2017/04/file_example_MP4_640_3MG.mp4",
+  "thumbnail": "/thumbnails/es6.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e770e"
+  },
+  "title": "Promises & Async Await",
+  "author": "Async World",
+  "description": "Master asynchronous JavaScript.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-10s.mp4",
+  "thumbnail": "/thumbnails/async.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e770f"
+  },
+  "title": "React Hooks Overview",
+  "author": "React Essentials",
+  "description": "Understand useState and useEffect.",
+  "videoPath": "https://download.samplelib.com/mp4/sample-5s.mp4",
+  "thumbnail": "/thumbnails/hooks.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7710"
+  },
+  "title": "Responsive Design",
+  "author": "MobileFirst",
+  "description": "Make your sites responsive with CSS Grid and Flexbox.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-20s.mp4",
+  "thumbnail": "/thumbnails/responsive.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7711"
+  },
+  "title": "Tailwind CSS Intro",
+  "author": "Utility Ninja",
+  "description": "Design faster with utility-first CSS.",
+  "videoPath": "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4",
+  "thumbnail": "/thumbnails/tailwind.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7712"
+  },
+  "title": "Deploy with Netlify",
+  "author": "Deploy Guru",
+  "description": "Push your React app to production.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-15s.mp4",
+  "thumbnail": "/thumbnails/netlify.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7713"
+  },
+  "title": "Firebase Auth",
+  "author": "Firebase Dev",
+  "description": "Implement Google login in your app.",
+  "videoPath": "https://download.samplelib.com/mp4/sample-5s.mp4",
+  "thumbnail": "/thumbnails/firebase.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7714"
+  },
+  "title": "Build a Todo App",
+  "author": "MiniProjects",
+  "description": "Hands-on app using JS, HTML, and CSS.",
+  "videoPath": "https://samplelib.com/lib/preview/mp4/sample-10s.mp4",
+  "thumbnail": "/thumbnails/todo.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7715"
+  },
+  "title": "Python for Beginners",
+  "author": "CodePy",
+  "description": "Learn Python from scratch.",
+  "videoPath": "https://file-examples.com/storage/fe9e906836a4e7aa36c5a4e/2017/04/file_example_MP4_1920_18MG.mp4",
+  "thumbnail": "/thumbnails/python.png"
+},
+{
+  "_id": {
+    "$oid": "67f2ec77761fb0d3511e7716"
+  },
+  "title": "Django Crash Course",
+  "author": "WebDevTV",
+  "description": "Build a backend using Django.",
+  "videoPath": "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
+  "thumbnail": "/thumbnails/django.png"
+}]

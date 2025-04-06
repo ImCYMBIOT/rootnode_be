@@ -1,0 +1,300 @@
+[{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e0"
+  },
+  "title": "React vs Vue",
+  "author": "Michael Figueroa",
+  "description": "Letter ever itself entire opportunity service through leg action firm.",
+  "filepath": "uploads/articles/react-vs-vue.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e1"
+  },
+  "title": "State Management in Redux",
+  "author": "James Fields",
+  "description": "General explain once skill share recently thought story figure control blood recent four far seek yeah.",
+  "filepath": "uploads/articles/state-management-in-redux.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e2"
+  },
+  "title": "GraphQL Introduction",
+  "author": "Emily Olsen",
+  "description": "Whether fact pick college raise there current eight major move identify debate and poor month almost.",
+  "filepath": "uploads/articles/graphql-introduction.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e3"
+  },
+  "title": "REST APIs Explained",
+  "author": "Michael Valenzuela",
+  "description": "His energy trip admit send TV event everybody recent tree.",
+  "filepath": "uploads/articles/rest-apis-explained.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e4"
+  },
+  "title": "Understanding Node.js",
+  "author": "Kristina Anthony",
+  "description": "Discover land top table water turn story organization sound mention.",
+  "filepath": "uploads/articles/understanding-node.js.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e5"
+  },
+  "title": "JavaScript Closures",
+  "author": "Sharon Welch",
+  "description": "Upon would action lot what most win alone individual like improve read case itself.",
+  "filepath": "uploads/articles/javascript-closures.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e6"
+  },
+  "title": "Async/Await in JavaScript",
+  "author": "Nathan Morrison",
+  "description": "Everybody term learn truth street little theory audience.",
+  "filepath": "uploads/articles/async/await-in-javascript.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e7"
+  },
+  "title": "Web Security Basics",
+  "author": "Robert Gallagher",
+  "description": "Speech believe head author affect drug rise big although budget especially.",
+  "filepath": "uploads/articles/web-security-basics.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e8"
+  },
+  "title": "CSS Grid vs Flexbox",
+  "author": "Joshua Matthews",
+  "description": "New above trouble forget industry become firm visit four general art again response table.",
+  "filepath": "uploads/articles/css-grid-vs-flexbox.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76e9"
+  },
+  "title": "HTML5 Semantic Tags",
+  "author": "Joseph Page",
+  "description": "To responsibility street people bad several friend door shake catch second something car shoulder deal media.",
+  "filepath": "uploads/articles/html5-semantic-tags.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76ea"
+  },
+  "title": "TypeScript for Beginners",
+  "author": "Crystal Moore",
+  "description": "Street player person few support thank reflect nearly dog parent ability only agree why follow.",
+  "filepath": "uploads/articles/typescript-for-beginners.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76eb"
+  },
+  "title": "MongoDB Aggregation",
+  "author": "Brittany Shaw",
+  "description": "Arrive fine high without yeah anyone financial care.",
+  "filepath": "uploads/articles/mongodb-aggregation.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76ec"
+  },
+  "title": "Express Middleware",
+  "author": "Kevin Oliver",
+  "description": "Low doctor color heavy college direction rock agent general various program move.",
+  "filepath": "uploads/articles/express-middleware.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76ed"
+  },
+  "title": "OAuth2 Authentication",
+  "author": "Danny Ramos",
+  "description": "Decision organization service baby bag direction respond represent field similar plan.",
+  "filepath": "uploads/articles/oauth2-authentication.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76ee"
+  },
+  "title": "Intro to WebSockets",
+  "author": "Deborah Reynolds",
+  "description": "Chair brother site nice color occur watch mother wait cause task.",
+  "filepath": "uploads/articles/intro-to-websockets.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76ef"
+  },
+  "title": "Building PWAs",
+  "author": "Heather Newton DVM",
+  "description": "More address indeed hard growth process those best early record star agent time her could college.",
+  "filepath": "uploads/articles/building-pwas.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f0"
+  },
+  "title": "Docker for Devs",
+  "author": "Kendra Robinson",
+  "description": "Successful life art behavior group eye agent car.",
+  "filepath": "uploads/articles/docker-for-devs.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f1"
+  },
+  "title": "Git for Teams",
+  "author": "Gregory Santos",
+  "description": "Couple push save put trade she bit position enter attention sometimes us president truth watch fund.",
+  "filepath": "uploads/articles/git-for-teams.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f2"
+  },
+  "title": "Continuous Integration",
+  "author": "Maria Singh",
+  "description": "Vote long back hope federal security feel suffer become again social particularly interest those see.",
+  "filepath": "uploads/articles/continuous-integration.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f3"
+  },
+  "title": "Testing with Jest",
+  "author": "Janet Hanna",
+  "description": "Until name program generation sure politics house last wish blue maintain.",
+  "filepath": "uploads/articles/testing-with-jest.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f4"
+  },
+  "title": "ES6 Features",
+  "author": "Bruce Pham",
+  "description": "If girl however trouble may personal kitchen someone wind determine.",
+  "filepath": "uploads/articles/es6-features.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f5"
+  },
+  "title": "Responsive Design Principles",
+  "author": "Monica Brown",
+  "description": "Every machine keep special back about another.",
+  "filepath": "uploads/articles/responsive-design-principles.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f6"
+  },
+  "title": "JavaScript Event Loop",
+  "author": "Katie Shah",
+  "description": "Reach score kind to add herself stay.",
+  "filepath": "uploads/articles/javascript-event-loop.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f7"
+  },
+  "title": "Code Splitting in React",
+  "author": "Teresa Campbell",
+  "description": "Take reality tell serious year available fire lose free him it company should character left.",
+  "filepath": "uploads/articles/code-splitting-in-react.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f8"
+  },
+  "title": "Web Performance Optimization",
+  "author": "Matthew Hill",
+  "description": "Baby kind culture however right fly position law believe reduce half game.",
+  "filepath": "uploads/articles/web-performance-optimization.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76f9"
+  },
+  "title": "Frontend vs Backend",
+  "author": "Michael Evans",
+  "description": "Billion first friend industry able free college outside job note care month along forget feeling.",
+  "filepath": "uploads/articles/frontend-vs-backend.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76fa"
+  },
+  "title": "Accessibility in Web",
+  "author": "Amanda Webb",
+  "description": "Themselves subject by evidence beat center blue fire argue off toward.",
+  "filepath": "uploads/articles/accessibility-in-web.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76fb"
+  },
+  "title": "Linting with ESLint",
+  "author": "Kyle Myers",
+  "description": "Spend become figure full rather PM never she learn analysis.",
+  "filepath": "uploads/articles/linting-with-eslint.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76fc"
+  },
+  "title": "Debugging JavaScript",
+  "author": "Sean Norton",
+  "description": "Whom three should western religious how difficult prove section those left western.",
+  "filepath": "uploads/articles/debugging-javascript.pdf",
+  "type": "Article"
+},
+{
+  "_id": {
+    "$oid": "67f2cf75761fb0d3511e76fd"
+  },
+  "title": "Using Postman for APIs",
+  "author": "Glenn Ramirez",
+  "description": "Term difficult agree turn surface keep ever hope answer way organization record their structure.",
+  "filepath": "uploads/articles/using-postman-for-apis.pdf",
+  "type": "Article"
+}]
