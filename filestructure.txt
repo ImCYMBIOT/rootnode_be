@@ -78,6 +78,8 @@
                 |-- WhiteButton.jsx
             |-- Contribute
                 |-- Contribute.jsx
+            |-- Devs
+                |-- DevsPage.jsx
             |-- Footer
                 |-- Footer.jsx
             |-- Landing
