@@ -5,10 +5,15 @@
     |-- auth
         |-- auth.js
     |-- index.js
+    |-- learn
+        |-- learn.js
     |-- models
+        |-- articleModel.js
+        |-- filesModel.js
         |-- repoModel.js
         |-- stream.js
         |-- userModel.js
+        |-- videoModel.js
     |-- package-lock.json
     |-- package.json
     |-- repositories
@@ -19,11 +24,14 @@
             |-- my-repo-new new
     |-- routes
         |-- contributorRoutes.js
+        |-- filesRoutes.js
+        |-- learnRoutes.js
         |-- repoRoutes.js
         |-- streamRoutes.js
         |-- wsRoutes.js
     |-- services
         |-- conflictService.js
+        |-- filesHelper.js
         |-- gitService.js
         |-- liveStreamService.js
 |-- frontend
@@ -54,6 +62,8 @@
             |-- Button
                 |-- Button.jsx
                 |-- WhiteButton.jsx
+            |-- Contribute
+                |-- Contribute.jsx
             |-- Footer
                 |-- Footer.jsx
             |-- Landing
