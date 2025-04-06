@@ -8,8 +8,6 @@ const Repo = require("../models/repoModel");
 module.exports = (repositoriesDir) => {
   const router = express.Router();
 
-
-
   // 📜 Get latest commits for a repository
   router.get("/repo/:repoId/commits", async (req, res) => {
     const { repoId } = req.params;
@@ -20,7 +18,11 @@ module.exports = (repositoriesDir) => {
       if (!repo)
         return res.status(404).json({ message: "Repository not found" });
 
-      const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
+      const repoPath = path.join(
+        repositoriesDir,
+        repo.uuid,
+        repo._id.toString()
+      );
       const git = simpleGit(repoPath);
 
       const log = await git.log({ maxCount: parseInt(limit) });
@@ -41,7 +43,11 @@ module.exports = (repositoriesDir) => {
       if (!repo)
         return res.status(404).json({ message: "Repository not found" });
 
-      const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
+      const repoPath = path.join(
+        repositoriesDir,
+        repo.uuid,
+        repo._id.toString()
+      );
 
       const walk = (dir) => {
         return fs.readdirSync(dir).map((file) => {
@@ -83,7 +89,7 @@ module.exports = (repositoriesDir) => {
       const absPath = path.join(
         repositoriesDir,
         repo.uuid,
-        repo.name,
+        repo._id.toString(), // <- this should probably be repo._id.toString()
         filePathParam
       );
 
@@ -109,7 +115,11 @@ module.exports = (repositoriesDir) => {
       if (!repo)
         return res.status(404).json({ message: "Repository not found" });
 
-      const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
+      const repoPath = path.join(
+        repositoriesDir,
+        repo.uuid,
+        repo._id.toString()
+      );
       const allFiles = [];
 
       const walk = (dir, base = "") => {

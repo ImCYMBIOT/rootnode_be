@@ -4,13 +4,36 @@ const fs = require("fs");
 const simpleGit = require("simple-git");
 const Repo = require("../models/repoModel");
 const chokidar = require("chokidar");
-const Files = require("../models/filesModel"); // import Files model at top if not already
+const Files = require("../models/filesModel");
+const WebSocket = require("ws");
+
+function addToTree(node, segments, type) {
+  if (!segments || segments.length === 0) return;
+
+  const current = segments[0];
+  const rest = segments.slice(1);
+
+  let child = node.children.find((c) => c.name === current);
+
+  if (!child) {
+    child = {
+      name: current,
+      type: rest.length === 0 ? type : "folder",
+      path: path.join(node.path, current).replace(/\\/g, "/"),
+      children: [],
+    };
+    node.children.push(child);
+  }
+
+  if (rest.length > 0) {
+    addToTree(child, rest, type);
+  }
+}
 
 module.exports = (repositoriesDir, wss) => {
   const router = express.Router();
 
   // 📌 Create a new repository (folder name = repoId)
-
   router.post("/create", async (req, res) => {
     const { repoName, uuid, description } = req.body;
 
@@ -18,10 +41,17 @@ module.exports = (repositoriesDir, wss) => {
       return res.status(400).json({ message: "User UUID is required" });
 
     try {
+      const existingRepo = await Repo.findOne({ name: repoName, uuid });
+      if (existingRepo) {
+        return res.status(409).json({
+          message:
+            "Repository with the same name already exists for this user.",
+        });
+      }
+
       const newRepo = new Repo({ name: repoName, uuid, description });
       await newRepo.save();
 
-      // Create a folder using the repo ID
       const repoPath = path.join(repositoriesDir, uuid, newRepo._id.toString());
 
       if (fs.existsSync(repoPath)) {
@@ -34,14 +64,15 @@ module.exports = (repositoriesDir, wss) => {
       const git = simpleGit(repoPath);
       await git.init();
 
-      // Sync: create default file tree
+      // ✅ Default empty file tree
       const initialTree = {
-        name: "/",
+        name: "root",
         type: "folder",
         path: "/",
         children: [],
       };
 
+      // ✅ Save to Files collection (used by file APIs)
       const fileStructure = new Files({
         _id: newRepo._id,
         owner: uuid,
@@ -61,6 +92,11 @@ module.exports = (repositoriesDir, wss) => {
         description,
       });
     } catch (err) {
+      if (err.code === 11000) {
+        return res.status(409).json({
+          message: "Repository already exists with this name for the user.",
+        });
+      }
       res
         .status(500)
         .json({ message: "Failed to create repository", error: err.message });
@@ -175,15 +211,15 @@ function watchRepository(repoPath, repoId, uuid, wss) {
   });
 
   watcher.on("all", async (event, filePath) => {
-    console.log(`🔄 Change detected: ${event} on ${filePath}`);
-
-    if (!fs.existsSync(repoPath)) {
-      console.warn(`🛑 Skipping auto commit: ${repoPath} no longer exists`);
-      watcher.unwatch(repoPath);
-      return;
-    }
-
     try {
+      console.log(`🔄 Change detected: ${event} on ${filePath}`);
+
+      if (!fs.existsSync(repoPath)) {
+        console.warn(`🛑 Skipping auto commit: ${repoPath} no longer exists`);
+        watcher.unwatch(repoPath);
+        return;
+      }
+
       const git = simpleGit(repoPath);
       await git.add("./*");
       await git.commit(`Auto commit by ${uuid} at ${new Date().toISOString()}`);
@@ -191,7 +227,7 @@ function watchRepository(repoPath, repoId, uuid, wss) {
       console.log(`✅ Auto commit successful for repo ${repoId}`);
       broadcast(wss, { repoId, event: "repo_updated", filePath });
     } catch (err) {
-      console.error("❌ Auto commit failed:", err.message);
+      console.error("❌ Watcher Error:", err.stack || err.message);
     }
   });
 
@@ -205,9 +241,16 @@ function broadcast(wss, data) {
     return;
   }
 
+  let sent = 0;
   wss.clients.forEach((client) => {
-    if (client.readyState === client.OPEN) {
-      client.send(JSON.stringify(data));
+    if (client.readyState === WebSocket.OPEN) {
+      try {
+        client.send(JSON.stringify(data));
+        sent++;
+      } catch (err) {
+        console.error("❌ Failed to send WS message:", err.message);
+      }
     }
   });
+  console.log(`📡 Broadcasted to ${sent} client(s)`);
 }

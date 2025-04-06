@@ -15,12 +15,19 @@
 		"axios": "^1.6.7",
 		"date-fns": "^4.1.0",
 		"hamburger-react": "^2.5.1",
+<<<<<<< HEAD
 		"moment": "^2.30.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-icons": "^5.0.1",
 		"react-player": "^2.14.1",
 		"react-router-dom": "^6.30.0"
+=======
+		"monaco-editor": "^0.52.2",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-router-dom": "^6.26.2"
+>>>>>>> 3337a16435f08e1d1aadd16318576b75360cc9cc
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.9.0",

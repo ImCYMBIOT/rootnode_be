@@ -138,7 +138,13 @@ const Archives = () => {
 						className="flex items-center justify-between rounded border p-3 text-white shadow"
 					>
 						<div className="flex flex-col">
-							<h3 className="text-lg font-bold">{repo.name}</h3>
+							<h3
+								onClick={() => navigate(`/repo/${repo._id}`)}
+								className="text-blue-300 cursor-pointer text-lg font-bold hover:underline"
+							>
+								{repo.name}
+							</h3>
+
 							<p>{repo.description || "No description."}</p>
 						</div>
 						<div className="flex gap-4">

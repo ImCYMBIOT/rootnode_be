@@ -4,6 +4,7 @@
     |-- .env
     |-- auth
         |-- auth.js
+    |-- config.js
     |-- index.js
     |-- learn
         |-- learn.js
@@ -18,13 +19,29 @@
     |-- package.json
     |-- repositories
         |-- 6e427d9f-3860-4eaa-9b8d-7d00c0ff6bf6
+            |-- 67f2a8e63e5b84540b802c6f
+            |-- 67f2ae15a7e855195bfd3ad8
             |-- apple
             |-- bapple
+        |-- a4bdbd3f-540d-4fc6-8487-86c1cb88f530
+            |-- 67f2afc2a7e855195bfd3adf
+            |-- 67f2afd6a7e855195bfd3ae2
+            |-- 67f2b1c80830e9c25312ced3
+            |-- 67f2b1d00830e9c25312ced6
+            |-- 67f2b246ada037b99c2c8a3b
+            |-- 67f2b24cada037b99c2c8a3e
+            |-- 67f2bfc9c7076245ba72ce2f
+            |-- 67f2e96b9c0483eb80913258
+                |-- newfile.js
+                |-- src
+                    |-- utils
+                        |-- helpers.js
         |-- bbb43325-7f34-45f3-8a11-516b943d3d78
             |-- my-repo-new new
     |-- routes
         |-- contributorRoutes.js
-        |-- filesRoutes.js
+        |-- fileTreeRoute.js
+        |-- fsRoutes.js
         |-- learnRoutes.js
         |-- repoRoutes.js
         |-- streamRoutes.js
@@ -64,6 +81,8 @@
                 |-- WhiteButton.jsx
             |-- Contribute
                 |-- Contribute.jsx
+            |-- Devs
+                |-- DevsPage.jsx
             |-- Footer
                 |-- Footer.jsx
             |-- Landing
@@ -91,6 +110,7 @@
             |-- streams
                 |-- AllStreams.jsx
                 |-- index.jsx
+                |-- RepoViewer.jsx
         |-- index.css
         |-- Logo
             |-- Logo.jsx
