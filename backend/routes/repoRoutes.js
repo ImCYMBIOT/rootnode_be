@@ -1,40 +1,65 @@
-// repoRoutes.js
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const simpleGit = require("simple-git");
 const Repo = require("../models/repoModel");
 const chokidar = require("chokidar");
+const Files = require("../models/filesModel"); // import Files model at top if not already
 
 module.exports = (repositoriesDir, wss) => {
   const router = express.Router();
 
-  // 📌 Create a new repository
+  // 📌 Create a new repository (folder name = repoId)
+
   router.post("/create", async (req, res) => {
     const { repoName, uuid, description } = req.body;
 
     if (!uuid)
       return res.status(400).json({ message: "User UUID is required" });
 
-    const repoPath = path.join(repositoriesDir, uuid, repoName);
-
-    if (fs.existsSync(repoPath)) {
-      return res.status(400).json({ message: "Repository already exists" });
-    }
-
     try {
+      const newRepo = new Repo({ name: repoName, uuid, description });
+      await newRepo.save();
+
+      // Create a folder using the repo ID
+      const repoPath = path.join(repositoriesDir, uuid, newRepo._id.toString());
+
+      if (fs.existsSync(repoPath)) {
+        return res
+          .status(400)
+          .json({ message: "Repository folder already exists" });
+      }
+
       fs.mkdirSync(repoPath, { recursive: true });
       const git = simpleGit(repoPath);
       await git.init();
 
-      const newRepo = new Repo({ name: repoName, uuid, description });
-      await newRepo.save();
+      // Sync: create default file tree
+      const initialTree = {
+        name: "/",
+        type: "folder",
+        path: "/",
+        children: [],
+      };
 
-      watchRepository(repoPath, repoName, uuid, wss);
+      const fileStructure = new Files({
+        _id: newRepo._id,
+        owner: uuid,
+        name: repoName,
+        tree: initialTree,
+      });
 
-      res
-        .status(201)
-        .json({ message: "Repository created", repoName, uuid, description });
+      await fileStructure.save();
+
+      watchRepository(repoPath, newRepo._id.toString(), uuid, wss);
+
+      res.status(201).json({
+        message: "Repository created",
+        repoId: newRepo._id,
+        repoName,
+        uuid,
+        description,
+      });
     } catch (err) {
       res
         .status(500)
@@ -42,17 +67,17 @@ module.exports = (repositoriesDir, wss) => {
     }
   });
 
-  // 📌 Commit changes
+  // 📌 Commit changes using repoId
   router.post("/commit", async (req, res) => {
-    const { repoName, uuid, commitMessage } = req.body;
+    const { repoId, uuid, commitMessage } = req.body;
 
-    if (!uuid || !repoName || !commitMessage) {
+    if (!uuid || !repoId || !commitMessage) {
       return res
         .status(400)
-        .json({ message: "UUID, repoName, and commitMessage are required" });
+        .json({ message: "UUID, repoId, and commitMessage are required" });
     }
 
-    const repoPath = path.join(repositoriesDir, uuid, repoName);
+    const repoPath = path.join(repositoriesDir, uuid, repoId);
 
     if (!fs.existsSync(repoPath)) {
       return res.status(404).json({ message: "Repository not found" });
@@ -64,9 +89,9 @@ module.exports = (repositoriesDir, wss) => {
       await git.add("./*");
       await git.commit(commitMessage);
 
-      broadcast(wss, { repoName, message: `Commit: ${commitMessage}` });
+      broadcast(wss, { repoId, message: `Commit: ${commitMessage}` });
 
-      res.json({ message: "Changes committed", repoName, commitMessage });
+      res.json({ message: "Changes committed", repoId, commitMessage });
     } catch (error) {
       res.status(500).json({ message: "Commit failed", error: error.message });
     }
@@ -74,7 +99,7 @@ module.exports = (repositoriesDir, wss) => {
 
   // 📌 Delete a repository using repoId
   router.delete("/delete/:repoId", async (req, res) => {
-    const { repoId } = req.params; // Use params instead of req.body
+    const { repoId } = req.params;
 
     if (!repoId)
       return res.status(400).json({ message: "Repository ID is required" });
@@ -85,7 +110,7 @@ module.exports = (repositoriesDir, wss) => {
       if (!repo)
         return res.status(404).json({ message: "Repository not found" });
 
-      const repoPath = path.join(repositoriesDir, repo.uuid, repo.name);
+      const repoPath = path.join(repositoriesDir, repo.uuid, repoId);
 
       try {
         if (fs.existsSync(repoPath)) {
@@ -137,9 +162,10 @@ module.exports = (repositoriesDir, wss) => {
   return router;
 };
 
-function watchRepository(repoPath, repoName, uuid, wss) {
+// 👁️ Watch repo folder for changes
+function watchRepository(repoPath, repoId, uuid, wss) {
   if (!fs.existsSync(repoPath)) {
-    console.error(`Cannot watch: Repository ${repoName} does not exist.`);
+    console.error(`Cannot watch: Repository ${repoId} does not exist.`);
     return;
   }
 
@@ -151,10 +177,9 @@ function watchRepository(repoPath, repoName, uuid, wss) {
   watcher.on("all", async (event, filePath) => {
     console.log(`🔄 Change detected: ${event} on ${filePath}`);
 
-    // Stop if repoPath is deleted
     if (!fs.existsSync(repoPath)) {
       console.warn(`🛑 Skipping auto commit: ${repoPath} no longer exists`);
-      watcher.unwatch(repoPath); // Optional: stop watching
+      watcher.unwatch(repoPath);
       return;
     }
 
@@ -163,16 +188,17 @@ function watchRepository(repoPath, repoName, uuid, wss) {
       await git.add("./*");
       await git.commit(`Auto commit by ${uuid} at ${new Date().toISOString()}`);
 
-      console.log(`✅ Auto commit successful for ${repoName}`);
-      broadcast(wss, { repoName, event: "repo_updated", filePath });
+      console.log(`✅ Auto commit successful for repo ${repoId}`);
+      broadcast(wss, { repoId, event: "repo_updated", filePath });
     } catch (err) {
       console.error("❌ Auto commit failed:", err.message);
     }
   });
 
-  console.log(`👀 Watching repository: ${repoName}`);
+  console.log(`👀 Watching repository: ${repoId}`);
 }
 
+// 📡 Broadcast to connected WebSocket clients
 function broadcast(wss, data) {
   if (!wss) {
     console.error("WebSocket server is not initialized!");
