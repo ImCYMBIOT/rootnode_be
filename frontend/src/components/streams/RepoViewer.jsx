@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 
 function FileExplorer({ files, onFileSelect, basePath = "" }) {
@@ -33,30 +33,104 @@ function FileExplorer({ files, onFileSelect, basePath = "" }) {
 	);
 }
 
-export default function Repoviewer({ uuid, repoId }) {
+export default function RepoViewer({ uuid }) {
 	const [fileContent, setFileContent] = useState("");
 	const [filePath, setFilePath] = useState("");
 	const [fileTree, setFileTree] = useState(null);
+	const [repoId, setRepoId] = useState(null); // Dynamically fetch repoId
+	const saveTimeout = useRef(null);
+	const wsRef = useRef(null);
 
+	// Fetch the repoId based on the uuid
+	useEffect(() => {
+		if (!uuid) return;
+
+		fetch(`http://localhost:3000/repo/user/${uuid}/repos`)
+			.then((res) => res.json())
+			.then((repos) => {
+				if (repos.length > 0) {
+					setRepoId(repos[0]._id); // Use the first repo by default
+					console.log("✅ Repo ID fetched:", repos[0]._id);
+				} else {
+					console.error("❌ No repositories found for this user");
+				}
+			})
+			.catch((err) =>
+				console.error("❌ Failed to fetch repositories", err),
+			);
+	}, [uuid]);
+
+	// Fetch the file tree once the repoId is available
 	useEffect(() => {
 		if (!uuid || !repoId) return;
 
-		fetch(`http://localhost:3000/file-tree/${uuid}/${repoId}`)
+		// Fetch file tree
+		fetch(`http://localhost:3000/files/user/${uuid}/repo/${repoId}`)
 			.then((res) => res.json())
-			.then((data) => setFileTree(data))
-			.catch((err) => console.error("Failed to load repo tree", err));
+			.then((data) => {
+				console.log("✅ File tree loaded:", data);
+				setFileTree(data);
+			})
+			.catch((err) => console.error("❌ Failed to load repo tree", err));
+
+		// Setup WebSocket for live updates
+		wsRef.current = new WebSocket("ws://localhost:3000");
+		wsRef.current.onmessage = (event) => {
+			const msg = JSON.parse(event.data);
+			if (msg.repoId === repoId) {
+				console.log("🔁 Repo update received via WS", msg);
+				fetch(`http://localhost:3000/files/user/${uuid}/repo/${repoId}`)
+					.then((res) => res.json())
+					.then((data) => setFileTree(data))
+					.catch((err) =>
+						console.error("❌ Failed to refresh tree", err),
+					);
+			}
+		};
+
+		return () => wsRef.current?.close();
 	}, [uuid, repoId]);
 
 	const handleFileSelect = (relativePath) => {
 		setFilePath(relativePath);
 		fetch(
-			`http://localhost:3000/fs/${uuid}/${repoId}/read-file?relativePath=${encodeURIComponent(
+			`http://localhost:3000/files/${repoId}/file-content?filePath=${encodeURIComponent(
 				relativePath,
 			)}`,
 		)
 			.then((res) => res.json())
 			.then((data) => setFileContent(data.content))
 			.catch((err) => console.error("Failed to load file content", err));
+	};
+
+	const handleEditorChange = (value) => {
+		setFileContent(value);
+
+		if (saveTimeout.current) {
+			clearTimeout(saveTimeout.current);
+		}
+
+		saveTimeout.current = setTimeout(() => {
+			if (!filePath) return;
+
+			fetch(`http://localhost:3000/files/update-file`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					uuid,
+					repoId,
+					relativePath: filePath,
+					content: value,
+				}),
+			})
+				.then((res) => res.json())
+				.then((data) => {
+					console.log("✅ Auto-saved", data);
+				})
+				.catch((err) => console.error("Failed to auto-save", err));
+		}, 250); // Auto-save every 0.25 seconds
 	};
 
 	return (
@@ -80,6 +154,7 @@ export default function Repoviewer({ uuid, repoId }) {
 					height="100%"
 					language="javascript"
 					value={fileContent}
+					onChange={handleEditorChange}
 					options={{ readOnly: false, fontSize: 14 }}
 				/>
 			</div>

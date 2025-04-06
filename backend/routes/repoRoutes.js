@@ -7,6 +7,7 @@ const chokidar = require("chokidar");
 const Files = require("../models/filesModel");
 const WebSocket = require("ws");
 
+
 function addToTree(node, segments, type) {
   if (!segments || segments.length === 0) return;
 

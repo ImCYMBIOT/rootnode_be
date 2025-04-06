@@ -13,8 +13,7 @@ const authRoutes = require("./auth/auth");
 const streamRoutes = require("./routes/streamRoutes");
 const contributorRoutes = require("./routes/contributorRoutes");
 const learnRoutes = require("./routes/learnRoutes");
-const fileRoutes = require("./routes/fileTreeRoute");
-const fsRoutes = require("./routes/fsRoutes");
+const fileRoute = require("./routes/fileRoute");
 
 // Constants
 const PORT = process.env.PORT || 3000;
@@ -107,8 +106,7 @@ app.use("/auth", authRoutes);
 app.use("/stream", streamRoutes);
 app.use("/contribute", contributorRoutes);
 app.use("/learn", learnRoutes);
-app.use("/files", fileRoutes);
-app.use("/fs", fsRoutes);
+app.use("/files", fileRoute);
 
 // Health check
 app.get("/", (req, res) => {

@@ -26,13 +26,13 @@
         |-- a4bdbd3f-540d-4fc6-8487-86c1cb88f530
             |-- 67f2afc2a7e855195bfd3adf
             |-- 67f2afd6a7e855195bfd3ae2
-            |-- 67f2b1c80830e9c25312ced3
             |-- 67f2b1d00830e9c25312ced6
             |-- 67f2b246ada037b99c2c8a3b
             |-- 67f2b24cada037b99c2c8a3e
             |-- 67f2bfc9c7076245ba72ce2f
             |-- 67f2e96b9c0483eb80913258
                 |-- newfile.js
+                |-- newfile3.js
                 |-- src
                     |-- utils
                         |-- helpers.js
@@ -40,8 +40,7 @@
             |-- my-repo-new new
     |-- routes
         |-- contributorRoutes.js
-        |-- fileTreeRoute.js
-        |-- fsRoutes.js
+        |-- fileRoute.js
         |-- learnRoutes.js
         |-- repoRoutes.js
         |-- streamRoutes.js
