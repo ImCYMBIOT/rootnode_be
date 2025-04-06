@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Files = require("../models/filesModel");
 const path = require("path");
+const repositoriesDir = path.join(__dirname, "..", "repositories");
+
 const {
   insertNode,
   updateNodeContent,
@@ -202,6 +204,34 @@ router.get("/:repoId/file-content", async (req, res) => {
     res
       .status(500)
       .json({ message: "Internal server error", error: err.message });
+  }
+});
+const filePath = require("path");
+const fs = require("fs");
+
+// 📂 Get the content of a file
+router.get("/:repoId/open-file", async (req, res) => {
+  const { repoId } = req.params;
+  const { filePath: relativePath, uuid } = req.query;
+
+  if (!uuid || !relativePath) {
+    return res.status(400).json({ message: "UUID and filePath are required" });
+  }
+
+  const repoDir = path.join(repositoriesDir, uuid, repoId);
+  const targetPath = path.join(repoDir, relativePath);
+
+  if (!fs.existsSync(targetPath)) {
+    return res.status(404).json({ message: "File does not exist" });
+  }
+
+  try {
+    const content = await fs.promises.readFile(targetPath, "utf-8");
+    res.json({ content });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to read file", error: err.message });
   }
 });
 

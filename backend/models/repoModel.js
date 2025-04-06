@@ -2,8 +2,11 @@ const mongoose = require("mongoose");
 
 const RepoSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  uuid: { type: String, required: true }, // User's UUID
+  uuid: { type: String, required: true }, // Owner's UUID
   description: { type: String, default: "" },
+  visibility: { type: String, enum: ["public", "private"], default: "private" },
+  language: { type: String, default: "" },
+  contributors: [{ type: String }], // List of contributor UUIDs
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -17,21 +17,17 @@ module.exports = (repositoriesDir, wss) => {
       return res.status(400).json({ message: "User UUID is required" });
 
     try {
-      // ✅ Manual check for user-friendly error
       const existingRepo = await Repo.findOne({ name: repoName, uuid });
       if (existingRepo) {
-        return res
-          .status(409)
-          .json({
-            message:
-              "Repository with the same name already exists for this user.",
-          });
+        return res.status(409).json({
+          message:
+            "Repository with the same name already exists for this user.",
+        });
       }
 
       const newRepo = new Repo({ name: repoName, uuid, description });
       await newRepo.save();
 
-      // Create a folder using the repo ID
       const repoPath = path.join(repositoriesDir, uuid, newRepo._id.toString());
 
       if (fs.existsSync(repoPath)) {
@@ -44,14 +40,15 @@ module.exports = (repositoriesDir, wss) => {
       const git = simpleGit(repoPath);
       await git.init();
 
-      // Sync: create default file tree
+      // ✅ Default empty file tree
       const initialTree = {
-        name: "/",
+        name: "root",
         type: "folder",
         path: "/",
         children: [],
       };
 
+      // ✅ Save to Files collection (used by file APIs)
       const fileStructure = new Files({
         _id: newRepo._id,
         owner: uuid,
@@ -71,7 +68,6 @@ module.exports = (repositoriesDir, wss) => {
         description,
       });
     } catch (err) {
-      // Handle DB-level unique error as fallback
       if (err.code === 11000) {
         return res.status(409).json({
           message: "Repository already exists with this name for the user.",
