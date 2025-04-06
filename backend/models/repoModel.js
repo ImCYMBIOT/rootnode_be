@@ -7,4 +7,7 @@ const RepoSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// ✅ Ensure (name + uuid) is unique per user
+RepoSchema.index({ name: 1, uuid: 1 }, { unique: true });
+
 module.exports = mongoose.model("Repo", RepoSchema);

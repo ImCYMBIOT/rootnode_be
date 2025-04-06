@@ -10,7 +10,6 @@ module.exports = (repositoriesDir, wss) => {
   const router = express.Router();
 
   // 📌 Create a new repository (folder name = repoId)
-
   router.post("/create", async (req, res) => {
     const { repoName, uuid, description } = req.body;
 
@@ -18,6 +17,17 @@ module.exports = (repositoriesDir, wss) => {
       return res.status(400).json({ message: "User UUID is required" });
 
     try {
+      // ✅ Manual check for user-friendly error
+      const existingRepo = await Repo.findOne({ name: repoName, uuid });
+      if (existingRepo) {
+        return res
+          .status(409)
+          .json({
+            message:
+              "Repository with the same name already exists for this user.",
+          });
+      }
+
       const newRepo = new Repo({ name: repoName, uuid, description });
       await newRepo.save();
 
@@ -61,6 +71,12 @@ module.exports = (repositoriesDir, wss) => {
         description,
       });
     } catch (err) {
+      // Handle DB-level unique error as fallback
+      if (err.code === 11000) {
+        return res.status(409).json({
+          message: "Repository already exists with this name for the user.",
+        });
+      }
       res
         .status(500)
         .json({ message: "Failed to create repository", error: err.message });

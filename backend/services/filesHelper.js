@@ -1,21 +1,22 @@
-// utils/treeHelper.js
+const path = require("path");
+const { BASE_REPO_DIR } = require("../config");
 
 // 📁 Create a file node
-function createFileNode(name, path, content = "") {
+function createFileNode(name, fullPath, content = "") {
   return {
     name,
     type: "file",
-    path,
+    path: fullPath,
     content,
   };
 }
 
 // 📁 Create a folder node
-function createFolderNode(name, path) {
+function createFolderNode(name, fullPath) {
   return {
     name,
     type: "folder",
-    path,
+    path: fullPath,
     children: [],
   };
 }
@@ -82,30 +83,33 @@ function updateFileContent(root, filePath, newContent) {
 }
 
 // 🔄 Rename node (file/folder) and auto-update all nested paths
-function renameNodeAndPaths(currentNode, oldPath, newPath) {
-  const node = findNodeByPath(currentNode, oldPath);
+function renameNodeAndPaths(root, targetPath, newName) {
+  const node = findNodeByPath(root, targetPath);
   if (!node) return false;
 
-  // Update path recursively for the node and its children
-  const updatePaths = (n, baseOld, baseNew) => {
-    n.path = n.path.replace(baseOld, baseNew);
-    if (n.type === "folder" && n.children) {
-      for (const child of n.children) {
-        updatePaths(child, baseOld, baseNew);
-      }
+  const parentPath = path.dirname(node.path);
+  const newPath = path.join(parentPath, newName);
+  updatePathsRecursively(node, newPath);
+
+  return { newPath };
+}
+
+function updatePathsRecursively(node, newPath) {
+  const oldPath = node.path;
+  node.name = path.basename(newPath);
+  node.path = newPath;
+
+  if (node.children && node.children.length) {
+    for (let child of node.children) {
+      const relative = path.relative(oldPath, child.path);
+      const childNewPath = path.join(newPath, relative);
+      updatePathsRecursively(child, childNewPath);
     }
-  };
-
-  updatePaths(node, oldPath, newPath);
-
-  // Update name
-  const newName = newPath.split("/").pop();
-  node.name = newName;
-
-  return true;
+  }
 }
 
 module.exports = {
+  BASE_REPO_DIR,
   createFileNode,
   createFolderNode,
   findNodeByPath,
