@@ -8,7 +8,7 @@ import ArchivesPage from "./pages/Archivespage";
 import Streamspage from "./pages/Streamspage";
 import LiveStreamPage from "./pages/LiveStreamPage";
 import ContributePage from "./pages/ContributePage";
-
+import RepoViewer from "../components/streams/RepoViewer";
 function App() {
 	return (
 		<Router>
@@ -23,6 +23,7 @@ function App() {
 				<Route path="/stream" element={<Streamspage />} />
 				<Route path="/stream/:id" element={<LiveStreamPage />} />
 				<Route path="/contribute/:id" element={<ContributePage />} />
+				<Route path="/repo/:repoId" element={<RepoViewer />} />
 			</Routes>
 		</Router>
 	);

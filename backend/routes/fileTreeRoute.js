@@ -157,6 +157,30 @@ router.delete("/:repoId/delete-folder", async (req, res) => {
       .json({ message: "Internal server error", error: err.message });
   }
 });
+// Delete a file
+router.delete("/:repoId/delete-file", async (req, res) => {
+  const { repoId } = req.params;
+  const { targetPath } = req.body;
+
+  if (!targetPath)
+    return res.status(400).json({ message: "Target path is required" });
+
+  try {
+    const repo = await Files.findById(repoId);
+    if (!repo) return res.status(404).json({ message: "Repository not found" });
+
+    const deleted = deleteNode(repo.tree, targetPath, "file");
+    if (!deleted) return res.status(404).json({ message: "File not found" });
+
+    await repo.save();
+    res.json({ message: "File deleted successfully", path: targetPath });
+  } catch (err) {
+    console.error("❌ Error deleting file:", err.message);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
+  }
+});
 
 // ✅ Rename file/folder
 router.patch("/:repoId/rename-node", async (req, res) => {
