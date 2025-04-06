@@ -13,6 +13,7 @@ const authRoutes = require("./auth/auth");
 const streamRoutes = require("./routes/streamRoutes");
 const contributorRoutes = require("./routes/contributorRoutes");
 const learnRoutes = require("./routes/learnRoutes");
+const fileRoutes = require("./routes/filesRoutes");
 
 // Constants
 const PORT = process.env.PORT || 3000;
@@ -59,6 +60,7 @@ app.use("/auth", authRoutes);
 app.use("/stream", streamRoutes);
 app.use("/contribute", contributorRoutes);
 app.use("/learn", learnRoutes);
+app.use("/files", fileRoutes);
 
 // Health check
 app.get("/", (req, res) => {
@@ -69,7 +71,6 @@ app.get("/", (req, res) => {
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
-
 
 // Start server
 server
